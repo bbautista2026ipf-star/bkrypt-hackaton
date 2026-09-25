@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import FormField from "./FormField.jsx";
+import LocationPicker from "./LazyLocationPicker.jsx";
 import useEventLocations from "../hooks/useEventLocations.js";
 import { toggleFairSelection } from "../lib/businessForm.js";
 
@@ -37,8 +38,19 @@ function BusinessFields({ values, errors, onChange, onFieldValue, idPrefix }) {
                         <div className="col-12">
                             <FormField id={`${idPrefix}-store-address`} name="store_address" label="Dirección del local" required value={values.store_address} onChange={onChange} error={errors.store_address} autoComplete="street-address" />
                         </div>
+                        <div className="col-12">
+                            <LocationPicker
+                                label="Ubicación del local"
+                                latitude={values.store_latitude}
+                                longitude={values.store_longitude}
+                                onPick={(latitude, longitude) => {
+                                    onFieldValue("store_latitude", latitude);
+                                    onFieldValue("store_longitude", longitude);
+                                }}
+                            />
+                        </div>
                         <div className="col-12 col-md-6">
-                            <FormField id={`${idPrefix}-store-latitude`} name="store_latitude" label="Latitud del local" type="number" step="any" inputMode="decimal" required value={values.store_latitude} onChange={onChange} error={errors.store_latitude} help="Ej.: -26.1849. En Google Maps, hacé clic derecho sobre el local y copiá las coordenadas." />
+                            <FormField id={`${idPrefix}-store-latitude`} name="store_latitude" label="Latitud del local" type="number" step="any" inputMode="decimal" required value={values.store_latitude} onChange={onChange} error={errors.store_latitude} help="Ej.: -26.1849" />
                         </div>
                         <div className="col-12 col-md-6">
                             <FormField id={`${idPrefix}-store-longitude`} name="store_longitude" label="Longitud del local" type="number" step="any" inputMode="decimal" required value={values.store_longitude} onChange={onChange} error={errors.store_longitude} help="Ej.: -58.1753" />
