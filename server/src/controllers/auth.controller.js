@@ -4,8 +4,7 @@ import { User } from "../models/user.model.js";
 import { EntrepreneurProfile } from "../models/entrepreneur_profile.model.js";
 import { EventLocation } from "../models/event_location.model.js";
 import { hashPassword, comparePassword } from "../helpers/bcrypt.helper.js";
-import { generateToken, generateEmailVerificationToken, verifyToken, TOKEN_PURPOSES } from "../helpers/jwt.helper.js";
-import { buildEmailVerificationLink, sendVerificationEmail } from "../helpers/mailer.helper.js";
+import { generateToken } from "../helpers/jwt.helper.js";
 
 const SESSION_COOKIE = "sessionToken";
 
@@ -21,8 +20,7 @@ const toPublicUser = (user) => ({
     id: user.id,
     name: user.name,
     email: user.email,
-    role: user.role,
-    is_email_verified: user.is_email_verified
+    role: user.role
 });
 
 const fairsInclude = {
@@ -51,18 +49,6 @@ const createEntrepreneurProfile = async (userId, profileData, transaction) => {
     return newProfile;
 };
 
-// Si el correo falla, el registro no se revierte: el usuario puede pedir que se le reenvíe
-const trySendVerificationEmail = async (user) => {
-    try {
-        const verificationLink = buildEmailVerificationLink(generateEmailVerificationToken(user.id));
-        await sendVerificationEmail({ email: user.email, name: user.name, verificationLink });
-        return true;
-    } catch (error) {
-        console.error("Error al enviar el correo de verificación:", error);
-        return false;
-    }
-};
-
 export const register = async (req, res) => {
     try {
         const { name, email, password, role, ...profileData } = matchedData(req, { locations: ["body"] });
@@ -82,12 +68,9 @@ export const register = async (req, res) => {
         const entrepreneurProfile = newProfileId
             ? await EntrepreneurProfile.findByPk(newProfileId, { include: fairsInclude })
             : null;
-        const emailSent = await trySendVerificationEmail(newUser);
 
         return res.status(201).json({
-            message: emailSent
-                ? "Usuario registrado con éxito. Te enviamos un email para verificar tu cuenta"
-                : "Usuario registrado con éxito, pero no pudimos enviar el email de verificación. Pedí que te lo reenviemos",
+            message: "Usuario registrado con éxito",
             user: toPublicUser(newUser),
             entrepreneurProfile
         });
@@ -110,10 +93,6 @@ export const login = async (req, res) => {
         if (!isValidPassword) {
             return res.status(401).json({ message: "Credenciales incorrectas" });
         }
-        // Se revisa después de la contraseña para no revelar el estado de cuentas ajenas
-        if (!registeredUser.is_email_verified) {
-            return res.status(403).json({ message: "Tenés que verificar tu email antes de iniciar sesión" });
-        }
 
         const token = generateToken({ user_id: registeredUser.id, user_role: registeredUser.role });
         res.cookie(SESSION_COOKIE, token, cookieOptions);
@@ -124,46 +103,6 @@ export const login = async (req, res) => {
         });
     } catch (error) {
         console.error("Error en el inicio de sesión:", error);
-        return res.status(500).json({ message: "Ocurrió un error interno en el servidor" });
-    }
-};
-
-export const verifyEmail = async (req, res) => {
-    try {
-        const { token } = matchedData(req, { locations: ["query"] });
-        let decoded;
-        try {
-            decoded = verifyToken(token, TOKEN_PURPOSES.emailVerification);
-        } catch (error) {
-            return res.status(400).json({ message: "El link de verificación es inválido o expiró" });
-        }
-        const user = await User.findByPk(decoded.user_id);
-        if (!user) {
-            return res.status(404).json({ message: "Usuario no encontrado" });
-        }
-        if (!user.is_email_verified) {
-            await user.update({ is_email_verified: true });
-        }
-        return res.status(200).json({ message: "Email verificado con éxito. Ya podés iniciar sesión" });
-    } catch (error) {
-        console.error("Error al verificar el email:", error);
-        return res.status(500).json({ message: "Ocurrió un error interno en el servidor" });
-    }
-};
-
-// Siempre responde lo mismo, exista o no el email, para no revelar qué cuentas están registradas
-export const resendVerificationEmail = async (req, res) => {
-    try {
-        const { email } = matchedData(req, { locations: ["body"] });
-        const user = await User.findOne({ where: { email } });
-        if (user && !user.is_email_verified) {
-            await trySendVerificationEmail(user);
-        }
-        return res.status(200).json({
-            message: "Si el email está registrado y falta verificarlo, te enviamos un nuevo link de verificación"
-        });
-    } catch (error) {
-        console.error("Error al reenviar el email de verificación:", error);
         return res.status(500).json({ message: "Ocurrió un error interno en el servidor" });
     }
 };
