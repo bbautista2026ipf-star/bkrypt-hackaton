@@ -10,6 +10,7 @@ import { checkValidationsResult } from "../middlewares/validationResult.middlewa
 import { authentication } from "../middlewares/auth.middleware.js";
 import { authorizeRoles } from "../middlewares/authorization.middleware.js";
 import { isProductOwner, canDeleteProduct } from "../middlewares/ownership.middleware.js";
+import { uploadProductImage } from "../middlewares/upload.middleware.js";
 
 export const productRouter = Router();
 
@@ -18,6 +19,19 @@ productRouter.get("/products", productFiltersValidations, checkValidationsResult
 productRouter.get("/products/:id", productIdValidation, checkValidationsResult, getProductById);
 
 // Rutas privadas: publicación y gestión de productos (el emprendedor dueño; un admin también puede eliminar)
-productRouter.post("/products", authentication, authorizeRoles("entrepreneur"), createProductValidations, checkValidationsResult, createProduct);
-productRouter.put("/products/:id", authentication, authorizeRoles("entrepreneur"), updateProductValidations, checkValidationsResult, isProductOwner, updateProduct);
+// Publicar y editar reciben multipart/form-data con la imagen opcional en el campo "image".
+// Al editar, el dueño se verifica antes de recibir el archivo para no guardar imágenes de peticiones rechazadas.
+productRouter.post("/products", authentication, authorizeRoles("entrepreneur"), uploadProductImage, createProductValidations, checkValidationsResult, createProduct);
+productRouter.put(
+    "/products/:id",
+    authentication,
+    authorizeRoles("entrepreneur"),
+    productIdValidation,
+    checkValidationsResult,
+    isProductOwner,
+    uploadProductImage,
+    updateProductValidations,
+    checkValidationsResult,
+    updateProduct
+);
 productRouter.delete("/products/:id", authentication, authorizeRoles("entrepreneur", "admin"), productIdValidation, checkValidationsResult, canDeleteProduct, deleteProduct);
