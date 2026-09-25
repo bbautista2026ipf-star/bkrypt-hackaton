@@ -10,6 +10,7 @@ import { productRouter } from './src/routes/product.routes.js'
 import { entrepreneurRouter } from './src/routes/entrepreneur.routes.js'
 import { eventLocationRouter } from './src/routes/event_location.routes.js'
 import { reviewRouter } from './src/routes/review.routes.js'
+import { scheduleRouter } from './src/routes/schedule.routes.js'
 import { notFoundHandler, errorHandler } from './src/middlewares/errorHandler.middleware.js'
 import { UPLOADS_ROOT } from './src/helpers/file.helper.js'
 
@@ -37,6 +38,7 @@ app.use('/api', productRouter) //rutas del catálogo de productos
 app.use('/api', reviewRouter) //rutas de calificaciones de productos
 app.use('/api', entrepreneurRouter) //rutas de perfiles de emprendedores y locales
 app.use('/api', eventLocationRouter) //rutas de ferias
+app.use('/api', scheduleRouter) //rutas de la agenda de horarios en ferias
 
 //servimos de forma estática las imágenes subidas (por ejemplo /uploads/products/archivo.jpg)
 app.use('/uploads', express.static(UPLOADS_ROOT))
