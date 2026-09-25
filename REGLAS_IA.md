@@ -41,3 +41,44 @@ Debes utilizar única y exclusivamente las siguientes tecnologías:
 
 - **Explicaciones ultra-cortas:** Explica brevemente qué cambiaste y por qué. Prioriza el código sobre el texto largo.
 - **Sin saludos ni despedidas:** Ve directo al grano. Elimina introducciones cordiales o conclusiones innecesarias.
+
+# Convenciones para los Commits
+
+> **Principio General:**
+> Antes de realizar un _commit_, asegúrate de mantener un orden **sumamente estructurado, legible, sólido e identificable**. Imagina que el historial de _commits_ está dirigido a principiantes que recién empiezan a analizar el repositorio (utiliza esta idea como referencia de claridad y concisión, no como una plantilla rígida).
+
+## Reglas Principales
+
+### 1. Nomenclatura (OBLIGATORIO)
+
+Cada mensaje de commit debe comenzar con un prefijo estandarizado que indique el tipo de trabajo realizado:
+
+- `feat:` Nuevas funcionalidades (features).
+- `fix:` Corrección de errores (bugs).
+- `chore:` Tareas de mantenimiento, configuración o actualización de dependencias.
+- `docs:` Cambios únicamente en la documentación.
+- `style:` Formato, espacios en blanco, punto y coma, etc. (sin cambios en código lógico).
+- `refactor:` Refactorización de código existente sin cambiar su comportamiento.
+
+### 2. Estructura de la Descripción
+
+Luego de la nomenclatura, inicia la descripción con un verbo en formato impersonal/pasado:
+
+- `se realizó`
+- `se creó`
+- `se modificó`
+- `se arregló`
+- `se eliminó`
+
+### 3. Alcance y Frecuencia
+
+- **Foco y Claridad:** Los commits deben ser concisos y descriptivos respecto al cambio específico.
+- **Cierre de Módulo:** Después de realizar un conjunto amplio de cambios, realiza un commit final abarcativo por cada módulo finalizado para consolidar el trabajo.
+
+## Ejemplos de Aplicación
+
+- `feat: se creó el formulario de registro de usuarios`
+- `fix: se arregló la redirección en la pantalla de inicio`
+- `docs: se actualizó el README con las instrucciones de instalación`
+- `chore: se modificó la configuración de dependencias iniciales`
+- `feat: se realizó la integración completa del módulo de pagos`
