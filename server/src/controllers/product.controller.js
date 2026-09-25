@@ -80,14 +80,14 @@ export const createProduct = async (req, res) => {
     }
 };
 
-// req.product lo carga el middleware isProductOwner
+// req.resource lo carga isProductOwner (editar) o canDeleteProduct (eliminar)
 export const updateProduct = async (req, res) => {
     try {
         const productData = matchedData(req, { locations: ["body"] });
         if (Object.keys(productData).length === 0) {
             return res.status(400).json({ message: "No se enviaron datos para actualizar" });
         }
-        const updatedProduct = await req.product.update(productData);
+        const updatedProduct = await req.resource.update(productData);
         return res.status(200).json({ message: "Producto actualizado con éxito", product: updatedProduct });
     } catch (error) {
         console.error("Error al actualizar el producto:", error);
@@ -97,7 +97,7 @@ export const updateProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
     try {
-        await req.product.destroy();
+        await req.resource.destroy();
         return res.status(200).json({ message: "Producto eliminado con éxito" });
     } catch (error) {
         console.error("Error al eliminar el producto:", error);
