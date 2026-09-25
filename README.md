@@ -4,7 +4,7 @@ Aplicación fullstack profesional con **Backend (Express + Node.js)** y **Fronte
 
 ---
 
-## 📋 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 c:/bkrypt/
@@ -62,9 +62,10 @@ c:/bkrypt/
 
 ---
 
-## 🛠️ Stack Tecnológico
+## Stack Tecnológico
 
 ### **Backend**
+
 - **Node.js** - Entorno de ejecución JavaScript
 - **Express** - Framework web minimalista
 - **Sequelize** - ORM para MySQL
@@ -76,6 +77,7 @@ c:/bkrypt/
 - **CORS** - Habilitación de solicitudes cruzadas
 
 ### **Frontend**
+
 - **React 19.2** - Biblioteca de UI
 - **Vite** - Build tool moderno y rápido
 - **React Router 8** - Enrutamiento de la aplicación
@@ -83,20 +85,23 @@ c:/bkrypt/
 - **Oxlint** - Linter rápido y eficiente
 
 ### **Herramientas**
+
 - **Git & GitHub** - Control de versiones
 - **Postman** - Testing de APIs
 - **npm** - Gestor de paquetes
 
 ---
 
-## 📝 Convenciones de Código
+## Convenciones de Código
 
 ### Presentación del Código
-- ✅ Código limpio, ordenado y bien indentado
-- ✅ Uso obligatorio de try-catch en controladores para manejo adecuado de errores
-- ✅ Estructura correcta del proyecto en carpetas temáticas
+
+- Código limpio, ordenado y bien indentado
+- Uso obligatorio de try-catch en controladores para manejo adecuado de errores
+- Estructura correcta del proyecto en carpetas temáticas
 
 ### Backend (Node.js + Express)
+
 - `src/config/` → Configuración (conexión a BD)
 - `src/models/` → Definición de modelos Sequelize
 - `src/routes/` → Definición de rutas
@@ -105,6 +110,7 @@ c:/bkrypt/
 - `src/helpers/` → Utilidades (JWT, bcrypt)
 
 ### Frontend (React)
+
 - Uso exclusivo de **ES Modules** (import/export)
 - Componentes funcionales con Hooks
 - Props desestructuradas en parámetros
@@ -112,18 +118,20 @@ c:/bkrypt/
 - Carpetas por funcionalidad (components, pages, hooks, styles, lib)
 
 ### Buenas Prácticas
-- 🔒 Validación con express-validator en backend
-- 🔐 Contraseñas encriptadas con bcrypt
-- 🎫 Autenticación con JWT
-- ♻️ Reutilización de componentes
-- 📦 Modularidad y escalabilidad
-- 🧪 Código funcional, modularizado y sin errores de ejecución
+
+- Validación con express-validator en backend
+- Contraseñas encriptadas con bcrypt
+- Autenticación con JWT
+- Reutilización de componentes
+- Modularidad y escalabilidad
+- Código funcional, modularizado y sin errores de ejecución
 
 ---
 
-## 🚀 Instrucciones de Instalación
+## Instrucciones de Instalación
 
 ### **Requisitos Previos**
+
 - Node.js (v16 o superior)
 - npm (v8 o superior)
 - MySQL con XAMPP/phpMyAdmin
@@ -148,12 +156,14 @@ npm install
 ### **Ejecución**
 
 **Backend:**
+
 ```bash
 cd server
 npm run dev
 ```
 
 **Frontend:**
+
 ```bash
 cd client
 npm run dev
@@ -163,15 +173,15 @@ La aplicación estará disponible en `http://localhost:3000` (Frontend) y `http:
 
 ---
 
-## 📚 Módulos Implementados (React)
+## Módulos Implementados (React)
 
-✅ **Módulo 1-6:** Introducción, Vite, Estructura, Componentes, Props, Renderizado de Listas, React Router
+**Módulo 1-6:** Introducción, Vite, Estructura, Componentes, Props, Renderizado de Listas, React Router
 
-⏳ **Módulos 7-12:** Por implementar (Hooks avanzados, Context, Backend Integration)
+**Módulos 7-12:** Por implementar (Hooks avanzados, Context, Backend Integration)
 
 ---
 
-## 📖 Información del Proyecto
+## Información del Proyecto
 
 - **Autor:** Bautista Berenfeld
 - **Email:** bbautista2026ipf@gmail.com
@@ -180,7 +190,6 @@ La aplicación estará disponible en `http://localhost:3000` (Frontend) y `http:
 
 ---
 
-## 📄 Licencia
+## Licencia
 
 ISC
-
