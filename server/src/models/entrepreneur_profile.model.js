@@ -22,13 +22,20 @@ export const EntrepreneurProfile = sequelize.define("EntrepreneurProfile", {
     whatsapp_number: {
         type: DataTypes.STRING
     },
-    verification_document_url: {
+    // Si no tiene local, el emprendedor indica las ferias a las que asiste (tabla entrepreneur_event_locations)
+    has_store: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
+    store_address: {
         type: DataTypes.STRING
     },
-    // Sello de confianza, solo un admin puede activarlo
-    is_verified: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
+    store_latitude: {
+        type: DataTypes.DECIMAL(10, 8)
+    },
+    store_longitude: {
+        type: DataTypes.DECIMAL(11, 8)
     }
 }, {
     tableName: "entrepreneur_profiles",
