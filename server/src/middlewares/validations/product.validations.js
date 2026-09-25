@@ -3,6 +3,8 @@ import { Product } from "../../models/product.model.js";
 
 const PRODUCT_CATEGORIES = Product.getAttributes().category.values;
 
+const MAX_SEARCH_RADIUS_KM = 100;
+
 // En la actualización todos los campos son opcionales; en la creación, los obligatorios se exigen
 const field = (name, isUpdate) => (isUpdate ? body(name).optional() : body(name));
 
@@ -11,23 +13,22 @@ const productBodyValidations = (isUpdate) => [
         .trim()
         .isLength({ min: 2, max: 100 }).withMessage("El nombre del producto es obligatorio y debe tener entre 2 y 100 caracteres"),
     body("description")
-        .optional()
+        .optional({ values: "null" })
         .trim()
         .isLength({ max: 2000 }).withMessage("La descripción no puede superar los 2000 caracteres"),
     field("price", isUpdate)
-        .isFloat({ min: 0, max: 99999999.99 }).withMessage("El precio es obligatorio y debe ser un número mayor o igual a 0")
+        .isFloat({ gt: 0, max: 99999999.99 }).withMessage("El precio es obligatorio y debe ser un número mayor a 0")
         .toFloat(),
+    field("stock", isUpdate)
+        .isInt({ min: 0, max: 100000 }).withMessage("El stock es obligatorio y debe ser un número entero mayor o igual a 0")
+        .toInt(),
     field("category", isUpdate)
         .isIn(PRODUCT_CATEGORIES).withMessage(`La categoría debe ser una de: ${PRODUCT_CATEGORIES.join(", ")}`),
     body("image_url")
-        .optional()
+        .optional({ values: "falsy" })
         .trim()
-        .isURL().withMessage("La imagen debe ser una URL válida")
-        .isLength({ max: 255 }).withMessage("La URL de la imagen no puede superar los 255 caracteres"),
-    body("is_available")
-        .optional()
-        .isBoolean().withMessage("La disponibilidad debe ser true o false")
-        .toBoolean()
+        .isURL({ protocols: ["http", "https"], require_protocol: true }).withMessage("La imagen debe ser una URL válida que empiece con http:// o https://")
+        .isLength({ max: 255 }).withMessage("La URL de la imagen no puede superar los 255 caracteres")
 ];
 
 export const productIdValidation = [
@@ -43,16 +44,43 @@ export const updateProductValidations = [
 
 export const productFiltersValidations = [
     query("category")
-        .optional()
+        .optional({ values: "falsy" })
         .isIn(PRODUCT_CATEGORIES).withMessage(`La categoría debe ser una de: ${PRODUCT_CATEGORIES.join(", ")}`),
     query("available")
-        .optional()
+        .optional({ values: "falsy" })
         .isBoolean().withMessage("El filtro de disponibilidad debe ser true o false")
         .toBoolean(),
     query("search")
-        .optional()
+        .optional({ values: "falsy" })
         .trim()
         .isLength({ max: 100 }).withMessage("La búsqueda no puede superar los 100 caracteres")
+];
+
+// El filtro de cercanía necesita las dos coordenadas; el radio sin ubicación no tiene sentido
+const requiresCoordinates = (value, { req }) => {
+    if (req.query.lat === undefined || req.query.lng === undefined) {
+        throw new Error("El filtro de cercanía necesita latitud y longitud");
+    }
+    return true;
+};
+
+export const productSearchValidations = [
+    ...productFiltersValidations,
+    query("lat")
+        .optional()
+        .custom(requiresCoordinates).bail()
+        .isFloat({ min: -90, max: 90 }).withMessage("La latitud debe ser un número entre -90 y 90")
+        .toFloat(),
+    query("lng")
+        .optional()
+        .custom(requiresCoordinates).bail()
+        .isFloat({ min: -180, max: 180 }).withMessage("La longitud debe ser un número entre -180 y 180")
+        .toFloat(),
+    query("radius")
+        .optional()
+        .custom(requiresCoordinates).bail()
+        .isFloat({ gt: 0, max: MAX_SEARCH_RADIUS_KM }).withMessage(`El radio debe ser un número de kilómetros mayor a 0 y hasta ${MAX_SEARCH_RADIUS_KM}`)
+        .toFloat()
 ];
 
 export const rateProductValidations = [
