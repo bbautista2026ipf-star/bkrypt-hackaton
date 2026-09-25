@@ -4,6 +4,7 @@ import { Product } from "./product.model.js";
 import { EventLocation } from "./event_location.model.js";
 import { Schedule } from "./schedule.model.js";
 import { Review } from "./review.model.js";
+import { EntrepreneurEventLocation } from "./entrepreneur_event_location.model.js";
 
 // Los alias describen qué representa el modelo destino desde el punto de vista del modelo origen
 export const setupRelations = () => {
@@ -62,14 +63,33 @@ export const setupRelations = () => {
         as: "author"
     });
 
-    // EntrepreneurProfile 1:N Review
-    EntrepreneurProfile.hasMany(Review, {
-        foreignKey: "entrepreneur_profile_id",
+    // Product 1:N Review
+    Product.hasMany(Review, {
+        foreignKey: "product_id",
         as: "reviews",
         onDelete: "CASCADE"
     });
-    Review.belongsTo(EntrepreneurProfile, {
+    Review.belongsTo(Product, {
+        foreignKey: "product_id",
+        as: "product"
+    });
+
+    // EntrepreneurProfile N:M EventLocation a través de EntrepreneurEventLocation
+    // uniqueKey: el nombre autogenerado del índice único supera el límite de 64 caracteres de MySQL
+    EntrepreneurProfile.belongsToMany(EventLocation, {
+        through: EntrepreneurEventLocation,
         foreignKey: "entrepreneur_profile_id",
-        as: "entrepreneur"
+        otherKey: "event_location_id",
+        uniqueKey: "entrepreneur_fair_unique",
+        as: "fairs",
+        onDelete: "CASCADE"
+    });
+    EventLocation.belongsToMany(EntrepreneurProfile, {
+        through: EntrepreneurEventLocation,
+        foreignKey: "event_location_id",
+        otherKey: "entrepreneur_profile_id",
+        uniqueKey: "entrepreneur_fair_unique",
+        as: "entrepreneurs",
+        onDelete: "CASCADE"
     });
 };

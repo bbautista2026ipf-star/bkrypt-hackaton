@@ -11,7 +11,7 @@ export const Review = sequelize.define("Review", {
         type: DataTypes.UUID,
         allowNull: false
     },
-    entrepreneur_profile_id: {
+    product_id: {
         type: DataTypes.UUID,
         allowNull: false
     },
@@ -22,16 +22,13 @@ export const Review = sequelize.define("Review", {
     },
     comment: {
         type: DataTypes.TEXT
-    },
-    image_url: {
-        type: DataTypes.STRING
     }
 }, {
     tableName: "reviews",
     timestamps: true,
     underscored: true,
-    // Una reseña por consumidor por emprendedor
+    // Una calificación por usuario por producto (si vuelve a calificar, se actualiza la existente)
     indexes: [
-        { unique: true, fields: ["user_id", "entrepreneur_profile_id"] }
+        { unique: true, fields: ["user_id", "product_id"] }
     ]
 });
