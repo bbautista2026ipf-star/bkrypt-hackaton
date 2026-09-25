@@ -25,10 +25,6 @@ export const User = sequelize.define("User", {
         type: DataTypes.ENUM("consumer", "entrepreneur", "admin"),
         allowNull: false,
         defaultValue: "consumer"
-    },
-    is_email_verified: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
     }
 }, {
     tableName: "users",

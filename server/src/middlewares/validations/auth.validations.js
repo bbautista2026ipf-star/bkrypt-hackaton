@@ -1,4 +1,4 @@
-import { body, query } from "express-validator";
+import { body } from "express-validator";
 import { User } from "../../models/user.model.js";
 import { assertEventLocationsExist } from "./entrepreneur.validations.js";
 
@@ -7,13 +7,6 @@ const isTrueValue = (value) => value === true || value === "true";
 const isEntrepreneur = body("role").equals("entrepreneur");
 
 const hasStore = (value, { req }) => req.body.role === "entrepreneur" && isTrueValue(req.body.has_store);
-
-const emailFormatValidation = () =>
-    body("email")
-        .trim()
-        .toLowerCase()
-        .notEmpty().withMessage("El email es obligatorio")
-        .isEmail().withMessage("El email debe tener un formato válido");
 
 export const registerValidations = [
     body("name")
@@ -96,17 +89,11 @@ export const registerValidations = [
 ];
 
 export const loginValidations = [
-    emailFormatValidation(),
+    body("email")
+        .trim()
+        .toLowerCase()
+        .notEmpty().withMessage("El email es obligatorio")
+        .isEmail().withMessage("El email debe tener un formato válido"),
     body("password")
         .notEmpty().withMessage("La contraseña es obligatoria")
-];
-
-export const verifyEmailValidations = [
-    query("token")
-        .notEmpty().withMessage("Falta el token de verificación")
-        .isJWT().withMessage("El link de verificación es inválido")
-];
-
-export const resendVerificationValidations = [
-    emailFormatValidation()
 ];

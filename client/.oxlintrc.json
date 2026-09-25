@@ -1,0 +1,9 @@
+{
+    "plugins": ["react", "jsx-a11y", "import", "oxc", "unicorn"],
+    "rules": {
+        "react/react-in-jsx-scope": "off",
+        "jsx-a11y/prefer-tag-over-role": "off",
+        "no-unused-vars": "error",
+        "no-console": "error"
+    }
+}
