@@ -20,7 +20,7 @@ function AdminEventLocations() {
                 {status === "loading" && eventLocations.length === 0 ? <LoadingState message="Cargando ubicaciones..." /> : null}
                 {status === "error" ? <ErrorState message={error.message} onRetry={reload} /> : null}
                 {status === "success" && eventLocations.length === 0 ? (
-                    <EmptyState title="Todavía no hay ubicaciones" message="Agregá la primera para poder habilitar eventos." />
+                    <EmptyState title="Todavía no hay ubicaciones" message="Agregá la primera para que los emprendedores puedan sumarla a su perfil y cargar horarios." />
                 ) : null}
                 <ul className="list-group">
                     {eventLocations.map((location) => (
@@ -39,7 +39,7 @@ function AdminEventLocations() {
             <ConfirmDialog
                 id="delete-location"
                 title="Eliminar ubicación"
-                message={`Se eliminan también los eventos habilitados en "${removal.target?.name ?? ""}" y sus solicitudes de presencia.`}
+                message={`Se eliminan también los horarios cargados en "${removal.target?.name ?? ""}". Si algún emprendedor sin local se quedara sin ninguna feria, el servidor no permite eliminarla.`}
                 confirmLabel="Eliminar"
                 isOpen={removal.isOpen}
                 isProcessing={removal.isRunning}

@@ -1,21 +1,15 @@
 import { useState } from "react";
 import useDocumentTitle from "../hooks/useDocumentTitle.js";
 import PageBanner from "../components/PageBanner.jsx";
-import AdminEntrepreneurRequests from "../components/AdminEntrepreneurRequests.jsx";
-import AdminPresenceRequests from "../components/AdminPresenceRequests.jsx";
-import AdminEvents from "../components/AdminEvents.jsx";
 import AdminEventLocations from "../components/AdminEventLocations.jsx";
-import AdminReportedOpinions from "../components/AdminReportedOpinions.jsx";
+import AdminProducts from "../components/AdminProducts.jsx";
 
 const TABS = [
-    { id: "entrepreneur-requests", label: "Solicitudes de emprendedor", Panel: AdminEntrepreneurRequests },
-    { id: "presence-requests", label: "Solicitudes de presencia", Panel: AdminPresenceRequests },
-    { id: "events", label: "Eventos", Panel: AdminEvents },
-    { id: "locations", label: "Ubicaciones de ferias", Panel: AdminEventLocations },
-    { id: "reported-opinions", label: "Opiniones reportadas", Panel: AdminReportedOpinions }
+    { id: "locations", label: "Ferias", Panel: AdminEventLocations },
+    { id: "products", label: "Moderación de productos", Panel: AdminProducts }
 ];
 
-// Panel del administrador (creador de la plataforma). Cada sección pide sus datos a rutas /api/admin que exigen rol admin.
+// Panel del administrador: gestiona las ferias y modera productos (el backend solo acepta estas acciones de su rol)
 function AdminPage() {
     useDocumentTitle("Administración");
     const [activeTabId, setActiveTabId] = useState(TABS[0].id);
@@ -24,7 +18,7 @@ function AdminPage() {
 
     return (
         <>
-            <PageBanner tag="Administración" title="Panel de administración" lead="Aprobá emprendedores, habilitá eventos y moderá las opiniones reportadas." />
+            <PageBanner tag="Administración" title="Panel de administración" lead="Habilitá las ferias donde los emprendedores cargan sus horarios y retirá los productos que no correspondan." />
             <div className="container">
                 <ul className="nav nav-pills flex-column flex-md-row gap-2 mb-4" role="tablist">
                     {TABS.map((tab) => (

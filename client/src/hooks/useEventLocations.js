@@ -1,8 +1,9 @@
 import { useCallback } from "react";
 import useAsyncData from "./useAsyncData.js";
-import { createEventLocation, deleteEventLocation, getEventLocations } from "../services/event.service.js";
+import { createEventLocation, deleteEventLocation, getEventLocations } from "../services/eventLocation.service.js";
 
-// Ubicaciones de ferias: las elige el emprendedor en su formulario y las administra el administrador
+// Ubicaciones de ferias: las elige el emprendedor en su formulario y las administra el administrador.
+// El backend no deja eliminar una feria si algún emprendedor sin local se quedaría sin ninguna (409).
 function useEventLocations() {
     const { data, status, error, reload, setData } = useAsyncData(getEventLocations);
 
