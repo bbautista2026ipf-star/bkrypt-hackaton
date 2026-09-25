@@ -4,6 +4,7 @@ import express from 'express'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import { rundb } from './src/config/database.js'
+import { setupRelations } from './src/models/relations.js'
 
 //guardamos instancia activa de express en memoria como constante "app"
 const app = express()
