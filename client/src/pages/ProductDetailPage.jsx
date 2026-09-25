@@ -37,7 +37,7 @@ function ProductDetailPage() {
             <article className="row g-4">
                 <div className="col-12 col-md-5">
                     <div className="product-detail-media">
-                        <ProductMedia name={product.name} imageUrl={product.image_url} />
+                        <ProductMedia name={product.name} imageUrl={product.image_url} expandable />
                     </div>
                 </div>
                 <div className="col-12 col-md-7 d-flex flex-column gap-2">
