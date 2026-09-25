@@ -3,6 +3,8 @@ import { Product } from "../../models/product.model.js";
 
 const PRODUCT_CATEGORIES = Product.getAttributes().category.values;
 
+// Los productos se envían como multipart/form-data (por la imagen): todos los valores llegan como texto
+// y los sanitizadores (toFloat, toBoolean) los convierten al tipo correcto.
 // En la actualización todos los campos son opcionales; en la creación, los obligatorios se exigen
 const field = (name, isUpdate) => (isUpdate ? body(name).optional() : body(name));
 
@@ -19,11 +21,6 @@ const productBodyValidations = (isUpdate) => [
         .toFloat(),
     field("category", isUpdate)
         .isIn(PRODUCT_CATEGORIES).withMessage(`La categoría debe ser una de: ${PRODUCT_CATEGORIES.join(", ")}`),
-    body("image_url")
-        .optional()
-        .trim()
-        .isURL().withMessage("La imagen debe ser una URL válida")
-        .isLength({ max: 255 }).withMessage("La URL de la imagen no puede superar los 255 caracteres"),
     body("is_available")
         .optional()
         .isBoolean().withMessage("La disponibilidad debe ser true o false")
@@ -36,9 +33,13 @@ export const productIdValidation = [
 
 export const createProductValidations = productBodyValidations(false);
 
+// El id se valida antes (en la ruta) porque el dueño se verifica antes de recibir la imagen
 export const updateProductValidations = [
-    ...productIdValidation,
-    ...productBodyValidations(true)
+    ...productBodyValidations(true),
+    body("remove_image")
+        .optional()
+        .isBoolean().withMessage("remove_image debe ser true o false")
+        .toBoolean()
 ];
 
 export const productFiltersValidations = [
@@ -52,16 +53,47 @@ export const productFiltersValidations = [
     query("search")
         .optional()
         .trim()
-        .isLength({ max: 100 }).withMessage("La búsqueda no puede superar los 100 caracteres")
-];
+        .isLength({ max: 100 }).withMessage("La búsqueda no puede superar los 100 caracteres"),
 
-export const rateProductValidations = [
-    ...productIdValidation,
-    body("stars")
-        .isInt({ min: 1, max: 5 }).withMessage("La calificación es obligatoria y debe ser un número entero del 1 al 5")
+    // Paginación
+    query("page")
+        .optional()
+        .isInt({ min: 1 }).withMessage("La página debe ser un número entero mayor o igual a 1")
         .toInt(),
-    body("comment")
-        .optional({ values: "null" })
-        .trim()
-        .isLength({ max: 1000 }).withMessage("El comentario no puede superar los 1000 caracteres")
+    query("limit")
+        .optional()
+        .isInt({ min: 1, max: 50 }).withMessage("El límite debe ser un número entero entre 1 y 50")
+        .toInt(),
+
+    // Cercanía: lat y lng van juntas; radius_km es opcional
+    query("lat")
+        .optional()
+        .isFloat({ min: -90, max: 90 }).withMessage("La latitud debe estar entre -90 y 90")
+        .toFloat()
+        .custom((lat, { req }) => {
+            if (req.query.lng === undefined) {
+                throw new Error("Para filtrar por cercanía enviá lat y lng juntas");
+            }
+            return true;
+        }),
+    query("lng")
+        .optional()
+        .isFloat({ min: -180, max: 180 }).withMessage("La longitud debe estar entre -180 y 180")
+        .toFloat()
+        .custom((lng, { req }) => {
+            if (req.query.lat === undefined) {
+                throw new Error("Para filtrar por cercanía enviá lat y lng juntas");
+            }
+            return true;
+        }),
+    query("radius_km")
+        .optional()
+        .isFloat({ min: 0.1, max: 100 }).withMessage("El radio debe estar entre 0.1 y 100 km")
+        .toFloat()
+        .custom((radius, { req }) => {
+            if (req.query.lat === undefined || req.query.lng === undefined) {
+                throw new Error("El radio necesita lat y lng");
+            }
+            return true;
+        })
 ];

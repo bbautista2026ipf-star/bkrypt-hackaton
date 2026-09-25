@@ -1,0 +1,73 @@
+/* FullCalendar se adapta a la paleta solo mediante sus variables CSS */
+.fc {
+    --fc-border-color: var(--bs-border-color);
+    --fc-button-text-color: var(--brand-white);
+    --fc-button-bg-color: var(--brand-fuchsia);
+    --fc-button-border-color: var(--brand-fuchsia);
+    --fc-button-hover-bg-color: var(--brand-fuchsia);
+    --fc-button-hover-border-color: var(--brand-fuchsia);
+    --fc-button-active-bg-color: var(--brand-yellow);
+    --fc-button-active-border-color: var(--brand-yellow);
+    --fc-today-bg-color: rgba(var(--brand-yellow-rgb), 0.2);
+    --fc-event-bg-color: var(--brand-teal);
+    --fc-event-border-color: var(--brand-teal);
+    --fc-event-text-color: var(--bs-body-color);
+    --fc-list-event-hover-bg-color: rgba(var(--brand-teal-rgb), 0.12);
+    --fc-page-bg-color: var(--brand-white);
+    font-size: 1rem;
+}
+
+/* La vista activa usa fondo amarillo: su texto pasa a oscuro para mantener el contraste */
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+    color: var(--bs-body-color);
+}
+
+.fc .fc-toolbar-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+}
+
+.fc .fc-toolbar-title::first-letter {
+    text-transform: uppercase;
+}
+
+/* Números de día y encabezados son enlaces internos del calendario: se leen como texto, no como links del sitio */
+.fc a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.fc .fc-col-header-cell-cushion {
+    text-transform: capitalize;
+}
+
+.fc .fc-daygrid-event,
+.fc .fc-list-event {
+    cursor: pointer;
+}
+
+.fc .fc-daygrid-day.fc-day-past {
+    background-color: rgba(var(--brand-teal-rgb), 0.04);
+}
+
+.calendar-legend-swatch {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 0.25rem;
+    border: 1px solid var(--bs-body-color);
+    vertical-align: middle;
+}
+
+.calendar-legend-swatch.is-confirmed {
+    background-color: var(--brand-teal);
+}
+
+.calendar-legend-swatch.is-pending {
+    background-color: var(--brand-yellow);
+}
+
+.calendar-legend-swatch.is-available {
+    background-color: var(--brand-white);
+    border-color: var(--brand-fuchsia);
+}

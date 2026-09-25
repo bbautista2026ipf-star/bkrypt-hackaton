@@ -7,6 +7,10 @@ export const User = sequelize.define("User", {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
+    name: {
+        type: DataTypes.STRING(100),
+        allowNull: false
+    },
     email: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -21,10 +25,6 @@ export const User = sequelize.define("User", {
         type: DataTypes.ENUM("consumer", "entrepreneur", "admin"),
         allowNull: false,
         defaultValue: "consumer"
-    },
-    is_email_verified: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
     }
 }, {
     tableName: "users",

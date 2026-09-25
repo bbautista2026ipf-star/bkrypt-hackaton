@@ -1,0 +1,214 @@
+/* ---------- Navegación ---------- */
+.app-navbar {
+    border-bottom: 4px solid var(--brand-fuchsia);
+    background-color: var(--brand-white);
+}
+
+.app-navbar .navbar-brand {
+    font-weight: 800;
+    color: var(--brand-fuchsia);
+}
+
+.app-navbar .nav-link {
+    font-weight: 600;
+    border-radius: var(--bs-border-radius);
+    padding: 0.5rem 0.75rem;
+}
+
+.app-navbar .nav-link.active {
+    color: var(--brand-white);
+    background-color: var(--brand-fuchsia);
+}
+
+.brand-mark {
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    background-color: var(--brand-fuchsia);
+}
+
+.brand-mark::after {
+    content: "";
+    width: 0.875rem;
+    height: 0.875rem;
+    border-radius: 50%;
+    background-color: var(--brand-yellow);
+    box-shadow: inset 0 0 0 0.3rem var(--brand-yellow), 0 0 0 0.125rem var(--brand-yellow);
+}
+
+/* ---------- Tarjeta de producto ---------- */
+.product-card {
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius-lg);
+}
+
+.product-card-media {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-top-left-radius: var(--bs-border-radius-lg);
+    border-top-right-radius: var(--bs-border-radius-lg);
+    background-color: rgba(var(--brand-yellow-rgb), 0.18);
+}
+
+/* contain: la foto se ve completa aunque no tenga la proporción del recuadro */
+.product-card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.product-media-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: zoom-in;
+}
+
+.product-card-initial {
+    display: grid;
+    place-items: center;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background-color: var(--brand-white);
+    color: var(--brand-fuchsia);
+    font-size: 1.75rem;
+    font-weight: 800;
+}
+
+.product-card.is-out-of-stock .product-card-media {
+    opacity: 0.6;
+}
+
+.product-description {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.product-image-preview {
+    display: block;
+    width: 100%;
+    max-width: 16rem;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    border-radius: var(--bs-border-radius);
+    border: 1px solid var(--bs-border-color);
+}
+
+.product-detail-media {
+    overflow: hidden;
+    border-radius: var(--bs-border-radius-lg);
+    border: 1px solid var(--bs-border-color);
+}
+
+.product-price {
+    font-size: 1.25rem;
+    font-weight: 800;
+}
+
+/* ---------- Estrellas ---------- */
+.star-rating {
+    display: inline-flex;
+    gap: 0.125rem;
+    vertical-align: middle;
+}
+
+.star-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.star-icon path {
+    stroke: var(--bs-body-color);
+    stroke-width: 1.25;
+}
+
+.star-icon.is-filled path {
+    fill: var(--brand-yellow);
+}
+
+.star-icon.is-empty path {
+    fill: var(--brand-white);
+}
+
+.star-input .btn {
+    min-width: 3rem;
+}
+
+/* ---------- Mapa ---------- */
+/* isolation: las capas de Leaflet usan z-index altos; así no quedan por encima del navbar ni de los modales */
+.fairs-map,
+.location-picker {
+    position: relative;
+    isolation: isolate;
+    border-radius: var(--bs-border-radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--bs-border-color);
+}
+
+.fairs-map {
+    height: 22rem;
+}
+
+.location-picker {
+    height: 16rem;
+}
+
+@media (min-width: 992px) {
+    .fairs-map {
+        height: 30rem;
+    }
+}
+
+.fairs-map-canvas,
+.location-picker-canvas {
+    width: 100%;
+    height: 100%;
+}
+
+.location-picker-canvas {
+    cursor: crosshair;
+}
+
+/* Por encima de las capas y controles de Leaflet (z-index hasta 1000) */
+.map-overlay-message {
+    position: absolute;
+    left: 50%;
+    bottom: 1rem;
+    z-index: 1001;
+    width: min(90%, 28rem);
+    transform: translateX(-50%);
+    margin: 0;
+}
+
+.map-info-window {
+    color: var(--bs-body-color);
+    font-size: 1rem;
+}
+
+.event-list-item {
+    border-left: 4px solid var(--brand-teal);
+}
+
+.event-list-item.is-selected {
+    border-left-color: var(--brand-fuchsia);
+    background-color: rgba(var(--brand-fuchsia-rgb), 0.06);
+}
+
+/* ---------- Opiniones ---------- */
+.opinion-item {
+    border-left: 4px solid var(--brand-yellow);
+}
+
+/* ---------- Estados ---------- */
+.empty-state {
+    border: 2px dashed var(--bs-border-color);
+    border-radius: var(--bs-border-radius-lg);
+}

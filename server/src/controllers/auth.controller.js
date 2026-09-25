@@ -18,9 +18,9 @@ const cookieOptions = {
 // Nunca se devuelve el hash de la contraseña al cliente
 const toPublicUser = (user) => ({
     id: user.id,
+    name: user.name,
     email: user.email,
-    role: user.role,
-    is_email_verified: user.is_email_verified
+    role: user.role
 });
 
 const fairsInclude = {
@@ -51,12 +51,12 @@ const createEntrepreneurProfile = async (userId, profileData, transaction) => {
 
 export const register = async (req, res) => {
     try {
-        const { email, password, role, ...profileData } = matchedData(req, { locations: ["body"] });
+        const { name, email, password, role, ...profileData } = matchedData(req, { locations: ["body"] });
         const password_hash = await hashPassword(password);
 
         // Transacción: si falla la creación del perfil o de sus ferias, no queda un usuario emprendedor a medias
         const { newUser, newProfileId } = await sequelize.transaction(async (transaction) => {
-            const newUser = await User.create({ email, password_hash, role }, { transaction });
+            const newUser = await User.create({ name, email, password_hash, role }, { transaction });
             let newProfileId = null;
             if (role === "entrepreneur") {
                 const newProfile = await createEntrepreneurProfile(newUser.id, profileData, transaction);

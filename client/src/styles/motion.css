@@ -1,0 +1,86 @@
+/* Solo se animan transform y opacity; las duraciones vienen de theme.css y valen 0 con "reducir movimiento" */
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(0.5rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes focus-highlight {
+    0% {
+        opacity: 0;
+    }
+
+    40% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+.fade-in-up {
+    /* "backwards" y no "both": al terminar no queda un transform aplicado que cree un contexto de apilamiento */
+    animation: fade-in-up var(--motion-duration-slow) var(--motion-easing) backwards;
+}
+
+/* Tarjeta que se eleva al pasar el mouse: la sombra vive en un pseudo-elemento y solo cambia su opacidad */
+.card-lift {
+    position: relative;
+    transition: transform var(--motion-duration-fast) var(--motion-easing);
+}
+
+.card-lift::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: var(--bs-box-shadow);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--motion-duration-fast) var(--motion-easing);
+}
+
+.card-lift:hover,
+.card-lift:focus-within {
+    transform: translateY(-3px);
+}
+
+.card-lift:hover::after,
+.card-lift:focus-within::after {
+    opacity: 1;
+}
+
+/* Sección que recibe el scroll desde el mapa: un halo breve indica a dónde se movió la vista */
+.scroll-target {
+    position: relative;
+    scroll-margin-top: 5rem;
+}
+
+.scroll-target.is-highlighted::before {
+    content: "";
+    position: absolute;
+    inset: -0.5rem;
+    border: 3px solid var(--brand-teal);
+    border-radius: var(--bs-border-radius-lg);
+    pointer-events: none;
+    animation: focus-highlight var(--motion-duration-slow) var(--motion-easing) 2 both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fade-in-up,
+    .scroll-target.is-highlighted::before {
+        animation: none;
+    }
+
+    .card-lift:hover,
+    .card-lift:focus-within {
+        transform: none;
+    }
+}
