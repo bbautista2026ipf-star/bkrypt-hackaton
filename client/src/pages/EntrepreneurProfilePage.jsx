@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Link, useParams } from "react-router";
 import useAuth from "../hooks/useAuth.js";
 import useDocumentTitle from "../hooks/useDocumentTitle.js";
@@ -5,17 +6,19 @@ import useEntrepreneurProfile from "../hooks/useEntrepreneurProfile.js";
 import PageBanner from "../components/PageBanner.jsx";
 import EntrepreneurContact from "../components/EntrepreneurContact.jsx";
 import ProductGrid from "../components/ProductGrid.jsx";
-import OpinionWall from "../components/OpinionWall.jsx";
+import RatingSummary from "../components/RatingSummary.jsx";
 import LoadingState from "../components/LoadingState.jsx";
 import ErrorState from "../components/ErrorState.jsx";
 import EmptyState from "../components/EmptyState.jsx";
 import { PATHS } from "../lib/constants.js";
 import { formatEventSchedule } from "../lib/formatters.js";
+import { summarizeProductRatings } from "../lib/ratings.js";
 
 function EntrepreneurProfilePage() {
     const { entrepreneurId } = useParams();
     const { entrepreneurProfile } = useAuth();
     const { entrepreneur, status, error, reload } = useEntrepreneurProfile(entrepreneurId);
+    const rating = useMemo(() => summarizeProductRatings(entrepreneur?.products ?? []), [entrepreneur]);
     useDocumentTitle(entrepreneur?.brand_name ?? "Emprendedor");
     const isOwnProfile = entrepreneurProfile?.id === entrepreneurId;
 
@@ -41,8 +44,12 @@ function EntrepreneurProfilePage() {
             <div className="container">
                 <div className="row g-4 mb-5">
                     <section className="col-12 col-lg-6" aria-labelledby="contact-title">
-                        <h2 id="contact-title" className="h4 section-title mb-3">Contacto</h2>
-                        <EntrepreneurContact entrepreneur={entrepreneur} />
+                        <h2 id="contact-title" className="h4 section-title mb-3">Contacto y opiniones</h2>
+                        <div className="mb-3">
+                            <EntrepreneurContact entrepreneur={entrepreneur} />
+                        </div>
+                        <RatingSummary averageRating={rating.averageRating} reviewsCount={rating.reviewsCount} />
+                        <p className="text-body-secondary mt-1 mb-0">Calificación promedio de sus productos. Las reseñas se leen en el detalle de cada producto.</p>
                     </section>
                     <section className="col-12 col-lg-6" aria-labelledby="where-title">
                         <h2 id="where-title" className="h4 section-title mb-3">Dónde encontrarlo</h2>
@@ -50,17 +57,17 @@ function EntrepreneurProfilePage() {
                         {entrepreneur.fairs.length > 0 ? (
                             <p className="mb-2"><span className="fw-semibold">Ferias habituales:</span> {entrepreneur.fairs.map((fair) => fair.name).join(", ")}</p>
                         ) : null}
-                        {entrepreneur.upcoming_events.length > 0 ? (
+                        {entrepreneur.schedules.length > 0 ? (
                             <>
-                                <p className="fw-semibold mb-1">Próximas ferias confirmadas:</p>
+                                <p className="fw-semibold mb-1">Próximos horarios en ferias:</p>
                                 <ul className="mb-0">
-                                    {entrepreneur.upcoming_events.map((event) => (
-                                        <li key={event.id}>{event.title}: {formatEventSchedule(event.starts_at, event.ends_at)} en {event.location.name}</li>
+                                    {entrepreneur.schedules.map((schedule) => (
+                                        <li key={schedule.id}>{schedule.location.name}: {formatEventSchedule(schedule.start_time, schedule.end_time)}</li>
                                     ))}
                                 </ul>
                             </>
                         ) : (
-                            <p className="mb-0">No tiene ferias confirmadas próximamente.</p>
+                            <p className="mb-0">No tiene horarios cargados en ferias próximamente.</p>
                         )}
                     </section>
                 </div>
@@ -71,8 +78,6 @@ function EntrepreneurProfilePage() {
                         ? <ProductGrid products={entrepreneur.products} entrepreneur={entrepreneur} />
                         : <EmptyState title="Todavía no publicó productos" message="Podés escribirle para consultar qué tiene disponible." />}
                 </section>
-
-                <OpinionWall entrepreneurId={entrepreneur.id} isOwnProfile={isOwnProfile} />
             </div>
         </>
     );

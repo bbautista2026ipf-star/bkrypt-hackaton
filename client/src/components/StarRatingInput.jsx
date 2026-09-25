@@ -7,7 +7,7 @@ function StarRatingInput({ name, value, onChange, error = null, idPrefix }) {
     return (
         <fieldset className="mb-3" aria-describedby={errorId}>
             <legend className="form-label fw-semibold fs-6">
-                Tu valoración <span className="text-body-secondary fw-normal">(obligatorio)</span>
+                Tu calificación <span className="text-body-secondary fw-normal">(obligatorio)</span>
             </legend>
             <div className="star-input d-flex flex-wrap gap-2">
                 {[1, 2, 3, 4, 5].map((stars) => (
