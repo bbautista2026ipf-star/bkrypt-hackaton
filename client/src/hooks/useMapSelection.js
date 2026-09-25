@@ -1,31 +1,31 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { scrollToSection } from "../lib/motion.js";
 
-// Recorrido del mapa: marcador -> listado de emprendedores del evento -> catálogo del emprendedor.
+// Recorrido del mapa: marcador -> emprendedores de la feria -> catálogo del emprendedor.
 // Cada selección desplaza la vista a la sección siguiente de la misma página, sin recargar.
-function useMapSelection(events) {
-    const [selectedEventId, setSelectedEventId] = useState(null);
+function useMapSelection(fairs) {
+    const [selectedFairId, setSelectedFairId] = useState(null);
     const [selectedEntrepreneurId, setSelectedEntrepreneurId] = useState(null);
     const [scrollRequest, setScrollRequest] = useState(null);
-    const eventSectionRef = useRef(null);
+    const fairSectionRef = useRef(null);
     const catalogSectionRef = useRef(null);
 
-    // Si los filtros dejan afuera al evento elegido, la selección deja de mostrarse (se deriva, no se copia)
-    const selectedEvent = events.find((event) => event.id === selectedEventId) ?? null;
-    const isEntrepreneurInEvent = Boolean(selectedEvent?.participants.some((participant) => participant.id === selectedEntrepreneurId));
+    // Si los filtros dejan afuera a la feria elegida, la selección deja de mostrarse (se deriva, no se copia)
+    const selectedFair = fairs.find((fair) => fair.id === selectedFairId) ?? null;
+    const isEntrepreneurInFair = Boolean(selectedFair?.participants.some((participant) => participant.id === selectedEntrepreneurId));
 
     // El scroll ocurre después de renderizar la sección de destino
     useEffect(() => {
         if (!scrollRequest) {
             return;
         }
-        scrollToSection(scrollRequest.target === "catalog" ? catalogSectionRef.current : eventSectionRef.current);
+        scrollToSection(scrollRequest.target === "catalog" ? catalogSectionRef.current : fairSectionRef.current);
     }, [scrollRequest]);
 
-    const selectEvent = useCallback((eventId) => {
-        setSelectedEventId(eventId);
+    const selectFair = useCallback((fairId) => {
+        setSelectedFairId(fairId);
         setSelectedEntrepreneurId(null);
-        setScrollRequest({ target: "event", requestedAt: Date.now() });
+        setScrollRequest({ target: "fair", requestedAt: Date.now() });
     }, []);
 
     const selectEntrepreneur = useCallback((entrepreneurId) => {
@@ -34,11 +34,11 @@ function useMapSelection(events) {
     }, []);
 
     return {
-        selectedEvent,
-        selectedEntrepreneurId: isEntrepreneurInEvent ? selectedEntrepreneurId : null,
-        selectEvent,
+        selectedFair,
+        selectedEntrepreneurId: isEntrepreneurInFair ? selectedEntrepreneurId : null,
+        selectFair,
         selectEntrepreneur,
-        eventSectionRef,
+        fairSectionRef,
         catalogSectionRef
     };
 }

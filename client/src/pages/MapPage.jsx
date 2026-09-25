@@ -1,41 +1,42 @@
 import { Link, useLocation } from "react-router";
 import useDocumentTitle from "../hooks/useDocumentTitle.js";
-import useProductSearch from "../hooks/useProductSearch.js";
+import useActiveFairs from "../hooks/useActiveFairs.js";
 import useMapSelection from "../hooks/useMapSelection.js";
 import PageBanner from "../components/PageBanner.jsx";
 import SearchFilters from "../components/SearchFilters.jsx";
-import EventsMap from "../components/EventsMap.jsx";
-import EventList from "../components/EventList.jsx";
-import EventEntrepreneurs from "../components/EventEntrepreneurs.jsx";
+import FairsMap from "../components/FairsMap.jsx";
+import FairList from "../components/FairList.jsx";
+import FairEntrepreneurs from "../components/FairEntrepreneurs.jsx";
 import EntrepreneurCatalogSection from "../components/EntrepreneurCatalogSection.jsx";
 import LoadingState from "../components/LoadingState.jsx";
 import ErrorState from "../components/ErrorState.jsx";
 import EmptyState from "../components/EmptyState.jsx";
 import { PATHS } from "../lib/constants.js";
 
-// Mapa -> emprendedores del evento -> catálogo del emprendedor, todo en la misma página y con los filtros del catálogo
+// Mapa -> emprendedores de la feria -> catálogo del emprendedor, todo en la misma página y con los filtros del catálogo
 function MapPage() {
     useDocumentTitle("Mapa");
     const location = useLocation();
-    const search = useProductSearch();
-    const selection = useMapSelection(search.events);
+    const fairsSearch = useActiveFairs();
+    const selection = useMapSelection(fairsSearch.fairs);
+    const selectedFairId = selection.selectedFair?.id ?? null;
 
     const renderMap = () => {
-        if (search.status === "loading" && !search.hasResults) {
-            return <LoadingState message="Buscando eventos activos..." />;
+        if (fairsSearch.status === "loading" && !fairsSearch.hasResults) {
+            return <LoadingState message="Buscando ferias activas..." />;
         }
-        if (search.status === "error") {
-            return <ErrorState message={search.error.message} onRetry={search.reload} />;
+        if (fairsSearch.status === "error") {
+            return <ErrorState message={fairsSearch.error.message} onRetry={fairsSearch.reload} />;
         }
-        if (search.events.length === 0) {
+        if (fairsSearch.fairs.length === 0) {
             return (
                 <EmptyState
-                    title="No hay eventos activos"
-                    message={search.hasActiveFilters
-                        ? "Ningún evento confirmado tiene emprendedores que coincidan con estos filtros."
-                        : "Todavía no hay ferias con emprendedores confirmados. Revisá la agenda para ver las próximas fechas."}
+                    title="No hay ferias activas"
+                    message={fairsSearch.hasActiveFilters
+                        ? "Ninguna feria próxima tiene emprendedores con productos que coincidan con estos filtros."
+                        : "Todavía no hay emprendedores con horarios cargados en las ferias. Revisá la agenda más adelante."}
                 >
-                    {search.hasActiveFilters ? <button type="button" className="btn btn-outline-primary" onClick={search.clearFilters}>Limpiar filtros</button> : null}
+                    {fairsSearch.hasActiveFilters ? <button type="button" className="btn btn-outline-primary" onClick={fairsSearch.clearFilters}>Limpiar filtros</button> : null}
                     <Link className="btn btn-primary" to={PATHS.agenda}>Ver la agenda</Link>
                 </EmptyState>
             );
@@ -43,11 +44,11 @@ function MapPage() {
         return (
             <div className="row g-4">
                 <div className="col-12 col-lg-8">
-                    <EventsMap events={search.events} selectedEventId={selection.selectedEvent?.id ?? null} onSelectEvent={selection.selectEvent} />
+                    <FairsMap fairs={fairsSearch.fairs} selectedFairId={selectedFairId} onSelectFair={selection.selectFair} />
                 </div>
                 <div className="col-12 col-lg-4">
-                    <h2 className="h5 fw-bold">Eventos activos y próximos</h2>
-                    <EventList events={search.events} selectedEventId={selection.selectedEvent?.id ?? null} onSelectEvent={selection.selectEvent} />
+                    <h2 className="h5 fw-bold">Ferias con emprendedores próximamente</h2>
+                    <FairList fairs={fairsSearch.fairs} selectedFairId={selectedFairId} onSelectFair={selection.selectFair} />
                 </div>
             </div>
         );
@@ -55,23 +56,23 @@ function MapPage() {
 
     return (
         <>
-            <PageBanner tag="Mapa" title="Ferias y emprendedores activos" lead="Tocá un evento para ver quiénes participan y, después, el catálogo de cada emprendedor." />
+            <PageBanner tag="Mapa" title="Ferias y emprendedores activos" lead="Tocá una feria para ver quiénes van a estar y, después, el catálogo de cada emprendedor." />
             <div className="container">
                 <SearchFilters
                     idPrefix="map-filter"
-                    filters={search.filters}
-                    onChange={search.updateFilters}
-                    onClear={search.clearFilters}
-                    hasActiveFilters={search.hasActiveFilters}
-                    locationStatus={search.location.status}
-                    isSortedByDistance={search.isSortedByDistance}
+                    filters={fairsSearch.filters}
+                    onChange={fairsSearch.updateFilters}
+                    onClear={fairsSearch.clearFilters}
+                    hasActiveFilters={fairsSearch.hasActiveFilters}
+                    locationStatus={fairsSearch.location.status}
+                    isSortedByDistance={false}
                 />
                 <p className="text-end">
                     <Link to={{ pathname: PATHS.catalog, search: location.search }}>Ver estos resultados como catálogo</Link>
                 </p>
-                <div aria-busy={search.status === "loading"}>{renderMap()}</div>
-                {selection.selectedEvent ? (
-                    <EventEntrepreneurs event={selection.selectedEvent} sectionRef={selection.eventSectionRef} onSelectEntrepreneur={selection.selectEntrepreneur} />
+                <div aria-busy={fairsSearch.status === "loading"}>{renderMap()}</div>
+                {selection.selectedFair ? (
+                    <FairEntrepreneurs fair={selection.selectedFair} sectionRef={selection.fairSectionRef} onSelectEntrepreneur={selection.selectEntrepreneur} />
                 ) : null}
                 {selection.selectedEntrepreneurId ? (
                     <EntrepreneurCatalogSection entrepreneurId={selection.selectedEntrepreneurId} sectionRef={selection.catalogSectionRef} />
