@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import { rundb } from './src/config/database.js'
 import { setupRelations } from './src/models/relations.js'
+import { authRouter } from './src/routes/auth.routes.js'
 
 //guardamos instancia activa de express en memoria como constante "app"
 const app = express()
@@ -24,7 +25,8 @@ app.use(cookieParser())
 //invocamos a la función que trae toda la configuración de nuestras relaciones entre los modelos
 setupRelations()
 
-//acá activamos nuestras rutas pasandole a nuestra constante app por parametros la ruta general y el enrutador 
+//acá activamos nuestras rutas pasandole a nuestra constante app por parametros la ruta general y el enrutador
+app.use('/api', authRouter) //rutas de autenticación (registro, login, logout)
 
 //dejamos al servidor en escucha pasandole por parametros el puerto (variable de entorno) y una función asíncrona que ejecuta la función que activa nuestra bd junto con un mensaje de éxito
 app.listen(process.env.PORT, async () => {
