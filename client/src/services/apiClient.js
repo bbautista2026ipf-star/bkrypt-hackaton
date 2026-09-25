@@ -1,18 +1,24 @@
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
+import { API_URL } from "../lib/apiConfig.js";
+
+const VALIDATION_MESSAGE = "Revisá los datos marcados en el formulario.";
 
 export class ApiError extends Error {
-    constructor(status, message, fieldErrors = {}, code = null) {
+    constructor(status, message, fieldErrors = {}) {
         super(message);
         this.status = status;
         this.fieldErrors = fieldErrors;
-        this.code = code;
     }
 }
 
-// El backend devuelve [{ field, message }]; el formulario necesita { campo: mensaje }
-const toFieldErrors = (errors = []) => errors.reduce((fieldErrors, { field, message }) => {
-    const fieldName = field ? field.replace(/\[\d+\]$/, "") : "form";
-    return fieldErrors[fieldName] ? fieldErrors : { ...fieldErrors, [fieldName]: message };
+// El backend devuelve los errores de validación como texto "campo: mensaje"; el formulario necesita { campo: mensaje }.
+// Los campos de listas ("event_location_ids[0]") se asignan al campo de la lista.
+const toFieldErrors = (errors = []) => errors.reduce((fieldErrors, entry) => {
+    const separatorIndex = entry.indexOf(": ");
+    if (separatorIndex === -1) {
+        return fieldErrors;
+    }
+    const fieldName = entry.slice(0, separatorIndex).replace(/\[\d+\]$/, "");
+    return fieldErrors[fieldName] ? fieldErrors : { ...fieldErrors, [fieldName]: entry.slice(separatorIndex + 2) };
 }, {});
 
 const buildUrl = (path, query) => {
@@ -23,13 +29,23 @@ const buildUrl = (path, query) => {
     return `${API_URL}${path}${queryString ? `?${queryString}` : ""}`;
 };
 
+// FormData (productos con imagen) se envía tal cual: el navegador arma el multipart y su Content-Type
 const buildRequestOptions = (method, body) => {
     const options = { method, credentials: "include" };
-    if (body !== undefined) {
+    if (body instanceof FormData) {
+        options.body = body;
+    } else if (body !== undefined) {
         options.headers = { "Content-Type": "application/json" };
         options.body = JSON.stringify(body);
     }
     return options;
+};
+
+const buildErrorMessage = (data) => {
+    if (data?.message) {
+        return data.message;
+    }
+    return Array.isArray(data?.errors) ? VALIDATION_MESSAGE : "Ocurrió un error inesperado. Intentá de nuevo en unos minutos.";
 };
 
 // Único punto de salida hacia la API: la sesión viaja en la cookie httpOnly (credentials: "include")
@@ -43,12 +59,7 @@ export const apiRequest = async (path, { method = "GET", body, query } = {}) => 
 
     const data = await response.json().catch(() => null);
     if (!response.ok) {
-        throw new ApiError(
-            response.status,
-            data?.message ?? "Ocurrió un error inesperado. Intentá de nuevo en unos minutos.",
-            toFieldErrors(data?.errors),
-            data?.code ?? null
-        );
+        throw new ApiError(response.status, buildErrorMessage(data), toFieldErrors(data?.errors));
     }
     return data;
 };

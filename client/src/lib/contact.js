@@ -7,4 +7,4 @@ export const buildWhatsAppLink = (phoneNumber, message) => {
 export const buildProductInquiry = (productName, brandName) =>
     `Hola ${brandName}, vi "${productName}" en FormoBuy y quería consultar por el producto.`;
 
-export const buildMailLink = (email, subject) => `mailto:${email}?subject=${encodeURIComponent(subject)}`;
+export const buildGreeting = (brandName) => `Hola ${brandName}, te encontré en FormoBuy.`;

@@ -8,8 +8,8 @@ export const logoutUser = () => apiRequest("/auth/logout", { method: "POST" });
 
 export const getCurrentUser = () => apiRequest("/auth/me");
 
-export const verifyEmail = (token) => apiRequest("/auth/verify-email", { method: "POST", body: { token } });
+// El token llega en el enlace del correo y se valida en el backend por query string
+export const verifyEmail = (token) => apiRequest("/auth/verify-email", { query: { token } });
 
-export const resendVerificationEmail = () => apiRequest("/auth/resend-verification", { method: "POST" });
-
-export const submitEntrepreneurRequest = (business) => apiRequest("/auth/entrepreneur-request", { method: "POST", body: business });
+// Público: el usuario sin verificar todavía no puede iniciar sesión, por eso se identifica con su email
+export const resendVerificationEmail = (email) => apiRequest("/auth/resend-verification", { method: "POST", body: { email } });

@@ -15,6 +15,15 @@ export const formatDateTime = (value) => dateTimeFormatter.format(new Date(value
 
 export const formatEventSchedule = (startsAt, endsAt) => `${formatDateTime(startsAt)} a ${timeFormatter.format(new Date(endsAt))} h`;
 
+export const formatTimeRange = (startsAt, endsAt) => `${timeFormatter.format(new Date(startsAt))} a ${timeFormatter.format(new Date(endsAt))} h`;
+
+// Día local "AAAA-MM-DD": agrupa horarios del mismo día sin depender de la zona horaria UTC del backend
+export const toDateKey = (value) => {
+    const date = new Date(value);
+    const pad = (number) => String(number).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+};
+
 export const formatDistance = (distanceInKm) => {
     if (distanceInKm === null || distanceInKm === undefined) {
         return null;

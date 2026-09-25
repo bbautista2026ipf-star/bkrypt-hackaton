@@ -23,19 +23,24 @@ export const ROLE_LABELS = {
     admin: "Administrador"
 };
 
-export const REQUEST_STATUS_LABELS = {
-    pending: "Pendiente",
-    approved: "Aprobada",
-    rejected: "Rechazada"
-};
-
+// Radio de cercanía en km; el backend usa 10 si no se indica
 export const SEARCH_RADIUS_OPTIONS = [2, 5, 10, 25];
 
 export const DEFAULT_SEARCH_RADIUS = 10;
 
-export const OPINION_COMMENT_MAX_LENGTH = 500;
+export const CATALOG_PAGE_SIZE = 20;
 
-// Centro de Formosa Capital: punto inicial del mapa cuando no hay eventos para encuadrar
+// Máximo que acepta el backend por página
+export const MAX_PAGE_SIZE = 50;
+
+export const REVIEW_COMMENT_MAX_LENGTH = 1000;
+
+// Imagen del producto: mismos límites que el middleware de subida del backend
+export const PRODUCT_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+export const PRODUCT_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
+
+// Centro de Formosa Capital: punto inicial del mapa cuando no hay ferias para encuadrar
 export const FORMOSA_CENTER = { lat: -26.1849, lng: -58.1753 };
 
 export const PATHS = {
@@ -51,6 +56,7 @@ export const PATHS = {
     newProduct: "/mi-catalogo/nuevo",
     admin: "/admin",
     forbidden: "/sin-permisos",
+    product: (id) => `/productos/${id}`,
     entrepreneur: (id) => `/emprendedores/${id}`,
     editProduct: (id) => `/mi-catalogo/${id}/editar`
 };

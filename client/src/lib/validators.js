@@ -1,16 +1,16 @@
-// Reglas equivalentes a las de Express-validator: el formulario marca el error antes de enviar y el backend vuelve a validar
+// Reglas equivalentes a las de Express-validator del backend: el formulario marca el error antes de enviar y el backend vuelve a validar
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const WHATSAPP_PATTERN = /^\+?\d{8,15}$/;
-const URL_PATTERN = /^https?:\/\/[^\s.]+\.[^\s]{2,}$/;
+const PERSON_NAME_PATTERN = /^[\p{L}\s'.-]+$/u;
 
 const isBlank = (value) => value === undefined || value === null || String(value).trim() === "";
 
-export const validateEmail = (value, label = "El email") => {
+export const validateEmail = (value) => {
     if (isBlank(value)) {
-        return `${label} es obligatorio`;
+        return "El email es obligatorio";
     }
-    return EMAIL_PATTERN.test(String(value).trim()) ? null : `${label} debe tener un formato válido, por ejemplo nombre@correo.com`;
+    return EMAIL_PATTERN.test(String(value).trim()) ? null : "El email debe tener un formato válido, por ejemplo nombre@correo.com";
 };
 
 export const validatePassword = (value) => {
@@ -30,6 +30,14 @@ export const validateLength = (value, { label, min = 0, max, required = true }) 
     return max && text.length > max ? `${label} no puede superar los ${max} caracteres` : null;
 };
 
+export const validatePersonName = (value) => {
+    const lengthError = validateLength(value, { label: "El nombre", min: 2, max: 100 });
+    if (lengthError) {
+        return lengthError;
+    }
+    return PERSON_NAME_PATTERN.test(String(value).trim()) ? null : "El nombre solo puede contener letras, espacios, puntos, apóstrofes y guiones";
+};
+
 export const validateWhatsApp = (value) => {
     if (isBlank(value)) {
         return null;
@@ -37,20 +45,13 @@ export const validateWhatsApp = (value) => {
     return WHATSAPP_PATTERN.test(String(value).trim()) ? null : "El número de WhatsApp debe contener entre 8 y 15 dígitos, con + opcional al inicio";
 };
 
-export const validateOptionalUrl = (value, label) => {
-    if (isBlank(value)) {
-        return null;
-    }
-    return URL_PATTERN.test(String(value).trim()) ? null : `${label} debe ser una URL válida que empiece con http:// o https://`;
-};
-
-export const validateNumberInRange = (value, { label, min, max, integer = false, exclusiveMin = false }) => {
+export const validateNumberInRange = (value, { label, min, max, exclusiveMin = false }) => {
     if (isBlank(value)) {
         return `${label} es obligatorio`;
     }
     const number = Number(value);
-    if (Number.isNaN(number) || (integer && !Number.isInteger(number))) {
-        return integer ? `${label} debe ser un número entero` : `${label} debe ser un número`;
+    if (Number.isNaN(number)) {
+        return `${label} debe ser un número`;
     }
     if (exclusiveMin ? number <= min : number < min) {
         return exclusiveMin ? `${label} debe ser mayor a ${min}` : `${label} debe ser mayor o igual a ${min}`;
