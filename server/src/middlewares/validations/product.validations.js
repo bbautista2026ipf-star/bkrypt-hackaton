@@ -42,6 +42,14 @@ export const updateProductValidations = [
         .toBoolean()
 ];
 
+// Cambio de imagen del administrador: la imagen nueva llega como archivo; sin archivo, remove_image la quita
+export const productImageValidations = [
+    body("remove_image")
+        .optional()
+        .isBoolean().withMessage("remove_image debe ser true o false")
+        .toBoolean()
+];
+
 export const productFiltersValidations = [
     query("category")
         .optional()

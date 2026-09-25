@@ -47,6 +47,9 @@ export const isProductOwner = checkOwnership(Product, productOwnership);
 // Un admin puede eliminar productos inapropiados
 export const canDeleteProduct = checkOwnership(Product, { ...productOwnership, allowAdmin: true });
 
+// Un admin puede reemplazar o quitar la imagen de cualquier producto (moderación)
+export const canEditProductImage = checkOwnership(Product, { ...productOwnership, allowAdmin: true });
+
 export const isScheduleOwner = checkOwnership(Schedule, {
     ownerField: "entrepreneur_profile_id",
     notFoundMessage: "Horario no encontrado",

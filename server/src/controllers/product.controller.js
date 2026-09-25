@@ -155,6 +155,26 @@ export const updateProduct = async (req, res) => {
     }
 };
 
+// Moderación del administrador: solo cambia la imagen. req.resource lo carga canEditProductImage
+export const updateProductImage = async (req, res) => {
+    try {
+        const { remove_image } = matchedData(req, { locations: ["body"] });
+        if (!req.file && !remove_image) {
+            return res.status(400).json({ message: "Enviá una imagen nueva o indicá que querés quitar la actual" });
+        }
+        const previousImage = req.resource.image_url;
+        const updatedProduct = await req.resource.update({ image_url: req.file ? toPublicUploadPath(req.file.path) : null });
+        if (previousImage && previousImage !== updatedProduct.image_url) {
+            await deleteUploadedFile(previousImage);
+        }
+        return res.status(200).json({ message: "Imagen del producto actualizada con éxito", product: updatedProduct });
+    } catch (error) {
+        await deleteUploadedFile(req.file?.path);
+        console.error("Error al actualizar la imagen del producto:", error);
+        return res.status(500).json({ message: "Ocurrió un error interno en el servidor" });
+    }
+};
+
 export const deleteProduct = async (req, res) => {
     try {
         const imageToDelete = req.resource.image_url;
