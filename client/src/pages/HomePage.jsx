@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import useDocumentTitle from "../hooks/useDocumentTitle.js";
-import useUpcomingEvents from "../hooks/useUpcomingEvents.js";
+import useUpcomingFairs from "../hooks/useUpcomingFairs.js";
 import LoadingState from "../components/LoadingState.jsx";
 import ErrorState from "../components/ErrorState.jsx";
 import EmptyState from "../components/EmptyState.jsx";
@@ -10,34 +10,34 @@ import { formatEventSchedule, pluralize } from "../lib/formatters.js";
 const FEATURES = [
     { title: "Catálogo local", text: "Productos de emprendedores de Formosa Capital, organizados por tipo y con contacto directo por WhatsApp.", to: PATHS.catalog, action: "Ver el catálogo" },
     { title: "Mapa de ferias", text: "Encontrá dónde están hoy y qué emprendedores participan en cada feria.", to: PATHS.map, action: "Abrir el mapa" },
-    { title: "Agenda de ferias", text: "Todas las fechas confirmadas para que planifiques tu visita con tiempo.", to: PATHS.agenda, action: "Ver la agenda" }
+    { title: "Agenda de ferias", text: "Qué emprendedores van a estar en cada feria y en qué horario, para que planifiques tu visita.", to: PATHS.agenda, action: "Ver la agenda" }
 ];
 
 function HomePage() {
     useDocumentTitle(null);
-    const { events, status, error, reload } = useUpcomingEvents();
+    const { fairDays, status, error, reload } = useUpcomingFairs();
 
-    const renderUpcomingEvents = () => {
+    const renderUpcomingFairs = () => {
         if (status === "loading") {
             return <LoadingState message="Buscando las próximas ferias..." />;
         }
         if (status === "error") {
             return <ErrorState message={error.message} onRetry={reload} />;
         }
-        if (events.length === 0) {
-            return <EmptyState title="Todavía no hay ferias confirmadas" message="Cuando la administración confirme emprendedores en un evento, lo vas a ver acá." />;
+        if (fairDays.length === 0) {
+            return <EmptyState title="Todavía no hay ferias próximas" message="Cuando los emprendedores carguen sus horarios en las ferias, los vas a ver acá." />;
         }
         return (
             <ul className="row g-3 list-unstyled mb-0">
-                {events.map((event) => (
-                    <li className="col-12 col-md-4" key={event.id}>
+                {fairDays.map((fairDay) => (
+                    <li className="col-12 col-md-4" key={fairDay.id}>
                         <article className="card h-100 card-lift">
                             <div className="card-body">
-                                {event.is_active_now ? <span className="badge badge-brand-yellow mb-2">En curso</span> : null}
-                                <h3 className="h5">{event.title}</h3>
-                                <p className="mb-1">{formatEventSchedule(event.starts_at, event.ends_at)}</p>
+                                {fairDay.is_active_now ? <span className="badge badge-brand-yellow mb-2">En curso</span> : null}
+                                <h3 className="h5">{fairDay.title}</h3>
+                                <p className="mb-1">{formatEventSchedule(fairDay.starts_at, fairDay.ends_at)}</p>
                                 <p className="mb-0 text-body-secondary">
-                                    {event.location.name} · {pluralize(event.participants_count, "emprendedor", "emprendedores")}
+                                    {pluralize(fairDay.participants.length, "emprendedor", "emprendedores")}
                                 </p>
                             </div>
                         </article>
@@ -84,7 +84,7 @@ function HomePage() {
                         <h2 id="upcoming-title" className="h3 section-title mb-0">Próximas ferias</h2>
                         <Link to={PATHS.agenda}>Ver la agenda completa</Link>
                     </div>
-                    {renderUpcomingEvents()}
+                    {renderUpcomingFairs()}
                 </section>
 
                 <section className="card card-body text-center py-5" aria-labelledby="join-title">

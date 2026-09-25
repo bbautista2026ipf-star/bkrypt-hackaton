@@ -6,25 +6,25 @@ import listPlugin from "@fullcalendar/list";
 import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from "@fullcalendar/core/locales/es";
 import useMediaQuery from "../hooks/useMediaQuery.js";
-import { hasEventOnDay, toCalendarEvent } from "../lib/calendarEvents.js";
+import { hasFairOnDay, toCalendarEvent } from "../lib/calendarEvents.js";
 
 const PLUGINS = [dayGridPlugin, listPlugin, interactionPlugin];
 const COMPACT_TOOLBAR = { left: "prev,next", center: "title", right: "today" };
 const FULL_TOOLBAR = { left: "prev,next today", center: "title", right: "dayGridMonth,listMonth" };
 const TIME_FORMAT = { hour: "2-digit", minute: "2-digit", hour12: false };
 
-// En móvil (menos de 768px) se usa la vista de lista, más legible que la grilla mensual
-function EventCalendar({ events, role = null, onSelectEvent, onSelectEmptyDate }) {
+// Cada entrada del calendario es una jornada de feria (una ubicación en un día). En móvil se usa la vista de lista.
+function EventCalendar({ fairDays, ownProfileId = null, onSelectFairDay, onSelectEmptyDate }) {
     const isCompact = useMediaQuery("(max-width: 767.98px)");
-    const calendarEvents = useMemo(() => events.map((event) => toCalendarEvent(event, role)), [events, role]);
+    const calendarEvents = useMemo(() => fairDays.map((fairDay) => toCalendarEvent(fairDay, ownProfileId)), [fairDays, ownProfileId]);
 
     const handleEventClick = ({ event, jsEvent }) => {
         jsEvent.preventDefault();
-        onSelectEvent(event.id);
+        onSelectFairDay(event.id);
     };
 
     const handleDateClick = ({ date }) => {
-        if (!hasEventOnDay(events, date)) {
+        if (!hasFairOnDay(fairDays, date)) {
             onSelectEmptyDate(date);
         }
     };
@@ -44,18 +44,18 @@ function EventCalendar({ events, role = null, onSelectEvent, onSelectEmptyDate }
             eventInteractive
             height="auto"
             dayMaxEvents={3}
-            noEventsContent="No hay eventos en este período"
+            noEventsContent="No hay ferias en este período"
         />
     );
 }
 
 EventCalendar.propTypes = {
-    events: PropTypes.arrayOf(PropTypes.shape({
+    fairDays: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.string.isRequired,
         starts_at: PropTypes.string.isRequired
     })).isRequired,
-    role: PropTypes.string,
-    onSelectEvent: PropTypes.func.isRequired,
+    ownProfileId: PropTypes.string,
+    onSelectFairDay: PropTypes.func.isRequired,
     onSelectEmptyDate: PropTypes.func.isRequired
 };
 
