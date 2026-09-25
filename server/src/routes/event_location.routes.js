@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
     getEventLocations,
     getEventLocationById,
+    getFairSessions,
     createEventLocation,
     updateEventLocation,
     deleteEventLocation
@@ -9,7 +10,8 @@ import {
 import {
     eventLocationIdValidation,
     createEventLocationValidations,
-    updateEventLocationValidations
+    updateEventLocationValidations,
+    fairSessionFiltersValidations
 } from "../middlewares/validations/event_location.validations.js";
 import { checkValidationsResult } from "../middlewares/validationResult.middleware.js";
 import { authentication } from "../middlewares/auth.middleware.js";
@@ -19,6 +21,8 @@ export const eventLocationRouter = Router();
 
 // Rutas públicas: listado (lo usa el registro del emprendedor) y detalle con sus emprendedores y próximos horarios
 eventLocationRouter.get("/event-locations", getEventLocations);
+// Jornadas oficiales de todas las ferias: las muestran la agenda y el mapa
+eventLocationRouter.get("/fair-sessions", fairSessionFiltersValidations, checkValidationsResult, getFairSessions);
 eventLocationRouter.get("/event-locations/:id", eventLocationIdValidation, checkValidationsResult, getEventLocationById);
 
 // Rutas privadas solo para administradores
