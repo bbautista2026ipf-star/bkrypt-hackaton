@@ -103,20 +103,20 @@ const seedEventLocations = async () => {
     return eventLocationIds;
 };
 
-const createVerifiedUser = (data, password_hash) =>
-    User.create({ ...data, password_hash, is_email_verified: true });
+const createUser = (data, password_hash) =>
+    User.create({ ...data, password_hash });
 
 const seedUsers = async (password_hash, eventLocationIds) => {
     const userIds = {};
     const profileIds = {};
 
-    await createVerifiedUser({ name: "Administración", email: "admin@example.com", role: "admin" }, password_hash);
+    await createUser({ name: "Administración", email: "admin@example.com", role: "admin" }, password_hash);
     for (const { key, name, email } of CONSUMERS) {
-        const user = await createVerifiedUser({ name, email, role: "consumer" }, password_hash);
+        const user = await createUser({ name, email, role: "consumer" }, password_hash);
         userIds[key] = user.id;
     }
     for (const { key, name, email, profile, fairs } of ENTREPRENEURS) {
-        const user = await createVerifiedUser({ name, email, role: "entrepreneur" }, password_hash);
+        const user = await createUser({ name, email, role: "entrepreneur" }, password_hash);
         const newProfile = await EntrepreneurProfile.create({ ...profile, user_id: user.id });
         await newProfile.setFairs(fairs.map((fairKey) => eventLocationIds[fairKey]));
         userIds[key] = user.id;
