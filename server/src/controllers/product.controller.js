@@ -3,6 +3,7 @@ import { Op } from "sequelize";
 import { Product } from "../models/product.model.js";
 import { EntrepreneurProfile } from "../models/entrepreneur_profile.model.js";
 import { Review } from "../models/review.model.js";
+import { User } from "../models/user.model.js";
 import { ratingAttributes, formatProductRating } from "../helpers/rating.helper.js";
 
 const buildProductFilters = ({ category, available, search }) => {
@@ -42,7 +43,12 @@ export const getProductById = async (req, res) => {
             attributes: { include: ratingAttributes() },
             include: [
                 { model: EntrepreneurProfile, as: "entrepreneur", attributes: ["id", "brand_name", "whatsapp_number"] },
-                { model: Review, as: "reviews", attributes: ["id", "user_id", "stars", "comment", "createdAt", "updatedAt"] }
+                {
+                    model: Review,
+                    as: "reviews",
+                    attributes: ["id", "stars", "comment", "createdAt", "updatedAt"],
+                    include: { model: User, as: "author", attributes: ["id", "name"] }
+                }
             ],
             order: [[{ model: Review, as: "reviews" }, "createdAt", "DESC"]]
         });
