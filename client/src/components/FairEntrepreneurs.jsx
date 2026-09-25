@@ -8,6 +8,9 @@ function FairEntrepreneurs({ fair, sectionRef, onSelectEntrepreneur }) {
     return (
         <section ref={sectionRef} tabIndex={-1} className="scroll-target mt-5" aria-labelledby="fair-entrepreneurs-title">
             <h2 id="fair-entrepreneurs-title" className="h3 section-title mb-4">Emprendedores en {fair.title}</h2>
+            {fair.participants.length === 0 ? (
+                <p className="text-body-secondary">Todavía no hay emprendedores confirmados en esta feria.</p>
+            ) : null}
             <ul className="row g-3 list-unstyled mb-0">
                 {fair.participants.map((participant) => {
                     const nextSchedule = findNextSchedule(fair, participant.id);

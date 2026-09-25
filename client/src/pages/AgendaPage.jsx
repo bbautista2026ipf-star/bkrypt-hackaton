@@ -15,7 +15,7 @@ import { EMPTY_SCHEDULE } from "../lib/scheduleForm.js";
 import { formatTimeRange } from "../lib/formatters.js";
 
 const ENTREPRENEUR_LEAD = "Cargá los días y horarios en los que vas a estar en tus ferias: aparecen en esta agenda y en el mapa.";
-const PUBLIC_LEAD = "Qué emprendedores van a estar en cada feria y en qué horario. Tocá una jornada para ver el detalle.";
+const PUBLIC_LEAD = "Cuándo abre cada feria, qué emprendedores van a estar y en qué horario. Tocá una jornada para ver el detalle.";
 
 function AgendaPage() {
     useDocumentTitle("Agenda de ferias");
@@ -65,6 +65,7 @@ function AgendaPage() {
                 onClose={agenda.closeFairDay}
                 onEditSchedule={agenda.openScheduleEdit}
                 onDeleteSchedule={agenda.askScheduleRemoval}
+                onAddSchedule={agenda.canAddToSelectedFairDay ? agenda.openScheduleForFairDay : null}
             />
             <BootstrapModal
                 id="schedule-editor"

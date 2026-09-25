@@ -34,7 +34,7 @@ function MapPage() {
                     title="No hay ferias activas"
                     message={fairsSearch.hasActiveFilters
                         ? "Ninguna feria próxima tiene emprendedores con productos que coincidan con estos filtros."
-                        : "Todavía no hay emprendedores con horarios cargados en las ferias. Revisá la agenda más adelante."}
+                        : "Todavía no hay ferias con jornadas u horarios próximos. Revisá la agenda más adelante."}
                 >
                     {fairsSearch.hasActiveFilters ? <button type="button" className="btn btn-outline-primary" onClick={fairsSearch.clearFilters}>Limpiar filtros</button> : null}
                     <Link className="btn btn-primary" to={PATHS.agenda}>Ver la agenda</Link>
@@ -47,7 +47,7 @@ function MapPage() {
                     <FairsMap fairs={fairsSearch.fairs} selectedFairId={selectedFairId} onSelectFair={selection.selectFair} />
                 </div>
                 <div className="col-12 col-lg-4">
-                    <h2 className="h5 fw-bold">Ferias con emprendedores próximamente</h2>
+                    <h2 className="h5 fw-bold">Próximas ferias</h2>
                     <FairList fairs={fairsSearch.fairs} selectedFairId={selectedFairId} onSelectFair={selection.selectFair} />
                 </div>
             </div>

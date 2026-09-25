@@ -25,7 +25,7 @@ function HomePage() {
             return <ErrorState message={error.message} onRetry={reload} />;
         }
         if (fairDays.length === 0) {
-            return <EmptyState title="Todavía no hay ferias próximas" message="Cuando los emprendedores carguen sus horarios en las ferias, los vas a ver acá." />;
+            return <EmptyState title="Todavía no hay ferias próximas" message="Cuando se carguen jornadas u horarios en las ferias, los vas a ver acá." />;
         }
         return (
             <ul className="row g-3 list-unstyled mb-0">

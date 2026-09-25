@@ -5,7 +5,7 @@ function CalendarLegend({ showOwnPresence = false }) {
         <ul className="list-unstyled d-flex flex-column flex-md-row flex-wrap gap-2 gap-md-4 mb-3">
             <li className="d-flex align-items-center gap-2">
                 <span className="calendar-legend-swatch is-confirmed" aria-hidden="true"></span>
-                Jornada de feria con emprendedores
+                Jornada de feria
             </li>
             {showOwnPresence ? (
                 <li className="d-flex align-items-center gap-2">

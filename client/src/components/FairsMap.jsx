@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import { CircleMarker, MapContainer, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { FORMOSA_CENTER } from "../lib/constants.js";
-import { pluralize } from "../lib/formatters.js";
+import { formatEventSchedule, pluralize } from "../lib/formatters.js";
 import { DEFAULT_ZOOM, DETAIL_ZOOM, OSM_ATTRIBUTION, OSM_TILE_URL, buildMarkerStyle, toLatLng } from "../lib/leaflet.js";
 
 const BOUNDS_PADDING_PX = 48;
@@ -36,7 +36,7 @@ function TrackFairsInView({ fairs, onChange }) {
     return null;
 }
 
-// Un marcador por feria con horarios próximos; al hacer clic abre su detalle y avisa a la página para desplazarse al listado
+// Un marcador por feria con jornadas u horarios próximos; al hacer clic abre su detalle y avisa a la página para desplazarse al listado
 function FairsMap({ fairs, selectedFairId = null, onSelectFair }) {
     const [hasFairsInView, setHasFairsInView] = useState(true);
     const markerStyles = useMemo(() => ({ default: buildMarkerStyle(false), selected: buildMarkerStyle(true) }), []);
@@ -58,6 +58,7 @@ function FairsMap({ fairs, selectedFairId = null, onSelectFair }) {
                         <Popup>
                             <div className="map-info-window">
                                 <p className="fw-bold mb-1">{fair.title}</p>
+                                <p className="mb-1">Próxima jornada: {formatEventSchedule(fair.starts_at, fair.ends_at)}</p>
                                 <p className="mb-0">{pluralize(fair.participants_count, "emprendedor presente", "emprendedores presentes")}</p>
                             </div>
                         </Popup>
@@ -76,6 +77,8 @@ function FairsMap({ fairs, selectedFairId = null, onSelectFair }) {
 const fairsPropType = PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
+    starts_at: PropTypes.string.isRequired,
+    ends_at: PropTypes.string.isRequired,
     participants_count: PropTypes.number.isRequired,
     location: PropTypes.shape({
         latitude: PropTypes.number.isRequired,

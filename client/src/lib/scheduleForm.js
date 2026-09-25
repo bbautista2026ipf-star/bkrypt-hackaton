@@ -14,7 +14,7 @@ const toDateInputValue = (date) => `${date.getFullYear()}-${pad(date.getMonth() 
 const toTimeInputValue = (date) => `${pad(date.getHours())}:${pad(date.getMinutes())}`;
 
 // Fecha y horas se cargan en hora local; al backend viajan en ISO 8601
-const toDate = (date, time) => new Date(`${date}T${time}`);
+export const toDate = (date, time) => new Date(`${date}T${time}`);
 
 export const scheduleToFormValues = (schedule) => {
     const start = new Date(schedule.start_time);
@@ -27,6 +27,15 @@ export const scheduleToFormValues = (schedule) => {
 };
 
 export const scheduleForDate = (date) => ({ ...EMPTY_SCHEDULE, date: toDateInputValue(date) });
+
+// Si la jornada tiene horario oficial se propone ese mismo horario; si no, solo la feria y el día
+export const scheduleForFairDay = (fairDay) => {
+    const [officialSession] = fairDay.sessions;
+    if (officialSession) {
+        return scheduleToFormValues(officialSession);
+    }
+    return { ...scheduleForDate(new Date(fairDay.starts_at)), event_location_id: fairDay.location.id };
+};
 
 // Mismas reglas que el backend: el fin es posterior al inicio y todavía no pasó
 const validateEndTime = (values) => {

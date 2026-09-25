@@ -3,20 +3,22 @@ import useAuth from "./useAuth.js";
 import useAsyncData from "./useAsyncData.js";
 import useConfirmation from "./useConfirmation.js";
 import { createSchedule, deleteSchedule, getSchedules, updateSchedule } from "../services/schedule.service.js";
+import { getFairSessions } from "../services/eventLocation.service.js";
 import { buildFairDays } from "../lib/fairs.js";
-import { EMPTY_SCHEDULE, scheduleForDate, scheduleToFormValues } from "../lib/scheduleForm.js";
+import { EMPTY_SCHEDULE, scheduleForDate, scheduleForFairDay, scheduleToFormValues } from "../lib/scheduleForm.js";
 import { ROLES } from "../lib/constants.js";
 import { formatDate } from "../lib/formatters.js";
 
 const HISTORY_MONTHS = 2;
 
-// Sin "from" el backend solo devuelve horarios que no terminaron: se piden también los de los últimos meses
-const loadAgendaSchedules = async () => {
+// Sin "from" el backend solo devuelve horarios y jornadas que no terminaron: se piden también los de los últimos meses
+const loadAgenda = async () => {
     const from = new Date();
     from.setMonth(from.getMonth() - HISTORY_MONTHS, 1);
     from.setHours(0, 0, 0, 0);
-    const { schedules } = await getSchedules({ from: from.toISOString() });
-    return schedules;
+    const filters = { from: from.toISOString() };
+    const [{ schedules }, { sessions }] = await Promise.all([getSchedules(filters), getFairSessions(filters)]);
+    return { schedules, sessions };
 };
 
 const isPastDay = (date) => {
@@ -25,11 +27,11 @@ const isPastDay = (date) => {
     return date < today;
 };
 
-// Agenda de ferias: todos ven los horarios; el emprendedor además carga, edita y borra los suyos
-// (solo en ferias de su perfil, regla que también valida el backend)
+// Agenda de ferias: todos ven las jornadas oficiales y los horarios de los emprendedores;
+// el emprendedor además carga, edita y borra los suyos (solo en ferias de su perfil, regla que también valida el backend)
 function useAgenda() {
     const { role, entrepreneurProfile } = useAuth();
-    const { data, status, error, reload, setData } = useAsyncData(loadAgendaSchedules);
+    const { data, status, error, reload, setData } = useAsyncData(loadAgenda);
     // Abrir y cerrar se separan del contenido: al cerrar, el modal conserva lo que mostraba durante su animación de salida
     const [fairDayView, setFairDayView] = useState({ id: null, isOpen: false });
     const [emptyDateMessage, setEmptyDateMessage] = useState(null);
@@ -37,7 +39,8 @@ function useAgenda() {
 
     const ownFairs = entrepreneurProfile?.fairs ?? [];
     const canManageSchedules = role === ROLES.entrepreneur && Boolean(entrepreneurProfile);
-    const fairDays = useMemo(() => buildFairDays(data ?? []), [data]);
+    const fairDays = useMemo(() => buildFairDays(data?.schedules ?? [], data?.sessions ?? []), [data]);
+    const selectedFairDay = fairDays.find((fairDay) => fairDay.id === fairDayView.id) ?? null;
 
     const openFairDay = useCallback((fairDayId) => {
         setEmptyDateMessage(null);
@@ -62,7 +65,7 @@ function useAgenda() {
     const selectEmptyDate = useCallback((date) => {
         const day = formatDate(date);
         if (!canManageSchedules) {
-            setEmptyDateMessage(`No hay ferias con emprendedores confirmados el ${day}.`);
+            setEmptyDateMessage(`No hay ferias el ${day}.`);
         } else if (isPastDay(date)) {
             setEmptyDateMessage(`El ${day} ya pasó: solo podés cargar horarios en fechas próximas.`);
         } else if (ownFairs.length === 0) {
@@ -72,6 +75,18 @@ function useAgenda() {
             openNewSchedule(scheduleForDate(date));
         }
     }, [canManageSchedules, ownFairs.length, openNewSchedule]);
+
+    // Desde el detalle de una jornada: el emprendedor carga su horario con la feria, el día y el horario oficial ya elegidos
+    const canAddToSelectedFairDay = canManageSchedules
+        && Boolean(selectedFairDay)
+        && ownFairs.some((fair) => fair.id === selectedFairDay.location.id)
+        && new Date(selectedFairDay.ends_at) > new Date();
+
+    const openScheduleForFairDay = useCallback(() => {
+        if (selectedFairDay) {
+            openNewSchedule(scheduleForFairDay(selectedFairDay));
+        }
+    }, [selectedFairDay, openNewSchedule]);
 
     // El backend devuelve el horario sin la feria ni el emprendedor: se recarga la agenda para mostrarlo completo
     const saveSchedule = useCallback(async (payload) => {
@@ -86,7 +101,7 @@ function useAgenda() {
 
     const scheduleRemoval = useConfirmation(useCallback(async (schedule) => {
         await deleteSchedule(schedule.id);
-        setData((previous) => previous.filter((existing) => existing.id !== schedule.id));
+        setData((previous) => ({ ...previous, schedules: previous.schedules.filter((existing) => existing.id !== schedule.id) }));
     }, [setData]));
     const { open: openScheduleRemoval } = scheduleRemoval;
 
@@ -105,7 +120,7 @@ function useAgenda() {
         ownProfileId: entrepreneurProfile?.id ?? null,
         ownFairs,
         canManageSchedules,
-        selectedFairDay: fairDays.find((fairDay) => fairDay.id === fairDayView.id) ?? null,
+        selectedFairDay,
         isFairDayOpen: fairDayView.isOpen,
         openFairDay,
         closeFairDay,
@@ -114,6 +129,8 @@ function useAgenda() {
         scheduleEditor,
         openNewSchedule,
         openScheduleEdit,
+        canAddToSelectedFairDay,
+        openScheduleForFairDay,
         closeScheduleEditor,
         saveSchedule,
         scheduleRemoval,
