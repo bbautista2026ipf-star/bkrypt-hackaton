@@ -3,6 +3,8 @@ import { sequelize } from "../config/database.js";
 import { EntrepreneurProfile } from "../models/entrepreneur_profile.model.js";
 import { EventLocation } from "../models/event_location.model.js";
 import { Product } from "../models/product.model.js";
+import { Schedule } from "../models/schedule.model.js";
+import { Op } from "sequelize";
 import { ratingAttributes, formatProductRating } from "../helpers/rating.helper.js";
 
 const publicProfileAttributes = [
@@ -18,9 +20,19 @@ export const getEntrepreneurById = async (req, res) => {
             include: [
                 { model: EventLocation, as: "fairs", attributes: ["id", "name", "latitude", "longitude"], through: { attributes: [] } },
                 // "products" es el alias de la tabla dentro de la consulta, lo necesita el cálculo del promedio
-                { model: Product, as: "products", attributes: { include: ratingAttributes("products") } }
+                { model: Product, as: "products", attributes: { include: ratingAttributes("products") } },
+                {
+                    model: Schedule,
+                    as: "schedules",
+                    required: false,
+                    where: { end_time: { [Op.gte]: new Date() } },
+                    include: { model: EventLocation, as: "location", attributes: ["id", "name"] }
+                }
             ],
-            order: [[{ model: Product, as: "products" }, "createdAt", "DESC"]]
+            order: [
+                [{ model: Product, as: "products" }, "createdAt", "DESC"],
+                [{ model: Schedule, as: "schedules" }, "start_time", "ASC"]
+            ]
         });
         if (!profile) {
             return res.status(404).json({ message: "Emprendedor no encontrado" });
