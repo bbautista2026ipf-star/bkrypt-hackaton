@@ -3,6 +3,7 @@ import { EntrepreneurProfile } from "./entrepreneur_profile.model.js";
 import { Product } from "./product.model.js";
 import { EventLocation } from "./event_location.model.js";
 import { Schedule } from "./schedule.model.js";
+import { FairSession } from "./fair_session.model.js";
 import { Review } from "./review.model.js";
 import { EntrepreneurEventLocation } from "./entrepreneur_event_location.model.js";
 
@@ -48,6 +49,17 @@ export const setupRelations = () => {
         onDelete: "CASCADE"
     });
     Schedule.belongsTo(EventLocation, {
+        foreignKey: "event_location_id",
+        as: "location"
+    });
+
+    // EventLocation 1:N FairSession (jornadas oficiales de la feria)
+    EventLocation.hasMany(FairSession, {
+        foreignKey: "event_location_id",
+        as: "sessions",
+        onDelete: "CASCADE"
+    });
+    FairSession.belongsTo(EventLocation, {
         foreignKey: "event_location_id",
         as: "location"
     });
