@@ -21,7 +21,7 @@ function EventDetailModal({ event = null, role = null, isOpen, onClose, onReques
                             <ul className="mb-0">
                                 {event.participants.map((participant) => (
                                     <li key={participant.id}>
-                                        <Link to={PATHS.entrepreneur(participant.id)} data-bs-dismiss="modal">{participant.brand_name}</Link>
+                                        <Link to={PATHS.entrepreneur(participant.id)} onClick={onClose}>{participant.brand_name}</Link>
                                     </li>
                                 ))}
                             </ul>
@@ -35,7 +35,7 @@ function EventDetailModal({ event = null, role = null, isOpen, onClose, onReques
                     {role === ROLES.admin && event.requests_summary ? (
                         <p className="mb-0">
                             Solicitudes: {event.requests_summary.pending} pendientes, {event.requests_summary.approved} aprobadas y {event.requests_summary.rejected} rechazadas.{" "}
-                            <Link to={PATHS.admin} data-bs-dismiss="modal">Revisarlas en Administración</Link>
+                            <Link to={PATHS.admin} onClick={onClose}>Revisarlas en Administración</Link>
                         </p>
                     ) : null}
                 </div>
