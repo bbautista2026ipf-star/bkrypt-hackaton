@@ -130,7 +130,8 @@ Resumen de los pedidos más relevantes y de lo que se decidió en cada uno.
 - Puede calificar productos de otros, nunca los propios.
 
 **Administrador**
-- Crea, edita y borra ferias. Una feria no se puede borrar si un emprendedor sin local quedaría sin ninguna.
+- Crea, edita y borra ferias, con sus jornadas (días y horarios de apertura), que se muestran en la agenda y en el mapa. Una feria no se puede borrar si un emprendedor sin local quedaría sin ninguna.
+- Reemplaza o quita la imagen de cualquier producto.
 - Modera: borra productos y calificaciones inapropiadas.
 
 ---
@@ -218,7 +219,8 @@ server/
 |---|---|---|
 | `users` | id (UUID), name, email (único), password_hash, role (`consumer` / `entrepreneur` / `admin`) | 1:1 con perfil de emprendedor, 1:N con reseñas |
 | `entrepreneur_profiles` | brand_name, biography, whatsapp_number, has_store, store_address, store_latitude, store_longitude | 1:N con productos y horarios, N:M con ferias |
-| `event_locations` (ferias) | name, description, latitude, longitude | N:M con emprendedores, 1:N con horarios |
+| `event_locations` (ferias) | name, description, latitude, longitude | N:M con emprendedores, 1:N con horarios y con jornadas |
+| `fair_sessions` (jornadas) | start_time, end_time, is_active_now (virtual) | Pertenece a una feria. Horario oficial de apertura, lo carga el admin |
 | `entrepreneur_event_locations` | entrepreneur_profile_id, event_location_id (par único) | Tabla intermedia N:M |
 | `products` | name, description, price, category, image_url, is_available | Pertenece a un emprendedor, 1:N con reseñas |
 | `reviews` | stars (1 a 5), comment, user_id, product_id (par único) | Pertenece a usuario y producto |
@@ -244,6 +246,7 @@ Todas las rutas empiezan con `/api`. 🔓 = pública, 🔐 = requiere sesión.
 | `GET /products/:id` | 🔓 | Detalle con emprendedor, promedio y comentarios (con el nombre del autor) |
 | `POST /products` | 🔐 emprendedor | Publicar (multipart con el campo `image` opcional) |
 | `PUT /products/:id` | 🔐 dueño | Editar, reemplazar la imagen o quitarla con `remove_image` |
+| `PUT /products/:id/image` | 🔐 admin | Reemplazar la imagen de un producto o quitarla con `remove_image` |
 | `DELETE /products/:id` | 🔐 dueño o admin | Eliminar |
 | `POST /products/:id/reviews` | 🔐 consumidor o emprendedor | Calificar (si ya había calificado, se actualiza) |
 | `DELETE /reviews/:id` | 🔐 autor o admin | Borrar una calificación |
@@ -251,7 +254,8 @@ Todas las rutas empiezan con `/api`. 🔓 = pública, 🔐 = requiere sesión.
 | `GET /entrepreneurs/stores` | 🔓 | Emprendedores con local y su ubicación |
 | `PUT /entrepreneurs/me` | 🔐 emprendedor | Editar el perfil, el local y las ferias |
 | `GET /event-locations` y `GET /event-locations/:id` | 🔓 | Ferias y el detalle de cada una |
-| `POST`, `PUT`, `DELETE /event-locations` | 🔐 admin | Administrar ferias |
+| `POST`, `PUT`, `DELETE /event-locations` | 🔐 admin | Administrar ferias. `sessions` (lista de `{ start_time, end_time }`) reemplaza las jornadas próximas |
+| `GET /fair-sessions` | 🔓 | Jornadas oficiales de las ferias (por defecto, las que no terminaron). Filtro: `from` |
 | `GET /schedules` | 🔓 | Agenda (por defecto, lo que todavía no terminó). Filtros: feria, emprendedor, fechas |
 | `POST`, `PUT`, `DELETE /schedules` | 🔐 emprendedor dueño | Cargar sus horarios, solo en ferias de su perfil |
 
@@ -271,12 +275,12 @@ Hecho con React, Vite y Bootstrap, con la paleta oficial: fucsia `#E3007B`, amar
 | Catálogo | Filtros, paginación y promedio de estrellas |
 | Detalle de producto | Datos del producto, emprendedor y calificaciones |
 | Perfil de emprendedor | Sus productos, local o ferias y próximos horarios |
-| Mapa | Ferias con horarios próximos y cuáles están en curso |
+| Mapa | Ferias con jornadas u horarios próximos y cuáles están en curso |
 | Agenda | Calendario de FullCalendar |
 | Ingresar y Registro | Acceso y alta de cuenta |
 | Mi perfil | Datos de la cuenta y edición del emprendimiento |
 | Mi catálogo y editor de producto | Gestión de los productos propios |
-| Administración | Ferias y moderación de productos |
+| Administración | Ferias con sus jornadas (alta y edición) y moderación de productos y sus imágenes |
 | Sin permisos y No encontrado | Páginas de error |
 
 **Organización:**
