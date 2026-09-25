@@ -2,6 +2,7 @@ import { matchedData } from "express-validator";
 import { sequelize } from "../config/database.js";
 import { User } from "../models/user.model.js";
 import { EntrepreneurProfile } from "../models/entrepreneur_profile.model.js";
+import { EventLocation } from "../models/event_location.model.js";
 import { hashPassword, comparePassword } from "../helpers/bcrypt.helper.js";
 import { generateToken } from "../helpers/jwt.helper.js";
 
@@ -22,32 +23,56 @@ const toPublicUser = (user) => ({
     is_email_verified: user.is_email_verified
 });
 
+const fairsInclude = {
+    model: EventLocation,
+    as: "fairs",
+    attributes: ["id", "name", "latitude", "longitude"],
+    through: { attributes: [] }
+};
+
+const createEntrepreneurProfile = async (userId, profileData, transaction) => {
+    const { brand_name, biography, whatsapp_number, has_store, store_address, store_latitude, store_longitude, event_location_ids } = profileData;
+    const newProfile = await EntrepreneurProfile.create({
+        user_id: userId,
+        brand_name,
+        biography,
+        whatsapp_number,
+        has_store,
+        store_address: has_store ? store_address : null,
+        store_latitude: has_store ? store_latitude : null,
+        store_longitude: has_store ? store_longitude : null
+    }, { transaction });
+
+    if (Array.isArray(event_location_ids) && event_location_ids.length > 0) {
+        await newProfile.setFairs([...new Set(event_location_ids)], { transaction });
+    }
+    return newProfile;
+};
+
 export const register = async (req, res) => {
     try {
-        const { email, password, role, brand_name, biography, whatsapp_number, verification_document_url } =
-            matchedData(req, { locations: ["body"] });
+        const { email, password, role, ...profileData } = matchedData(req, { locations: ["body"] });
         const password_hash = await hashPassword(password);
 
-        // Transacción: si falla la creación del perfil, no queda un usuario emprendedor huérfano
-        const { newUser, newProfile } = await sequelize.transaction(async (transaction) => {
+        // Transacción: si falla la creación del perfil o de sus ferias, no queda un usuario emprendedor a medias
+        const { newUser, newProfileId } = await sequelize.transaction(async (transaction) => {
             const newUser = await User.create({ email, password_hash, role }, { transaction });
-            let newProfile = null;
+            let newProfileId = null;
             if (role === "entrepreneur") {
-                newProfile = await EntrepreneurProfile.create({
-                    user_id: newUser.id,
-                    brand_name,
-                    biography,
-                    whatsapp_number,
-                    verification_document_url
-                }, { transaction });
+                const newProfile = await createEntrepreneurProfile(newUser.id, profileData, transaction);
+                newProfileId = newProfile.id;
             }
-            return { newUser, newProfile };
+            return { newUser, newProfileId };
         });
+
+        const entrepreneurProfile = newProfileId
+            ? await EntrepreneurProfile.findByPk(newProfileId, { include: fairsInclude })
+            : null;
 
         return res.status(201).json({
             message: "Usuario registrado con éxito",
             user: toPublicUser(newUser),
-            entrepreneurProfile: newProfile
+            entrepreneurProfile
         });
     } catch (error) {
         console.error("Error en el registro de usuario:", error);
@@ -96,7 +121,7 @@ export const logout = (req, res) => {
 export const getCurrentUser = async (req, res) => {
     try {
         const user = await User.findByPk(req.userData.user_id, {
-            include: { model: EntrepreneurProfile, as: "entrepreneurProfile" }
+            include: { model: EntrepreneurProfile, as: "entrepreneurProfile", include: fairsInclude }
         });
         if (!user) {
             return res.status(404).json({ message: "Usuario no encontrado" });
