@@ -16,7 +16,7 @@ import MyCatalogPage from "./pages/MyCatalogPage.jsx";
 import ForbiddenPage from "./pages/ForbiddenPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 
-// Mapa (Google Maps), agenda (FullCalendar) y administración se descargan solo cuando se visitan
+// Mapa (Leaflet), agenda (FullCalendar) y administración se descargan solo cuando se visitan
 const MapPage = lazy(() => import("./pages/MapPage.jsx"));
 const AgendaPage = lazy(() => import("./pages/AgendaPage.jsx"));
 const AdminPage = lazy(() => import("./pages/AdminPage.jsx"));
