@@ -1,0 +1,154 @@
+/* Paleta oficial (REGLAS_IA.md). Es el único lugar donde se escriben valores de color de marca. */
+:root {
+    --brand-fuchsia: #e3007b;
+    --brand-fuchsia-rgb: 227, 0, 123;
+    --brand-yellow: #ffd500;
+    --brand-yellow-rgb: 255, 213, 0;
+    --brand-teal: #0099a8;
+    --brand-teal-rgb: 0, 153, 168;
+    --brand-white: #ffffff;
+    --brand-white-rgb: 255, 255, 255;
+
+    /* Bootstrap toma la paleta a través de sus propias variables */
+    --bs-primary: var(--brand-fuchsia);
+    --bs-primary-rgb: var(--brand-fuchsia-rgb);
+    --bs-link-color: var(--brand-fuchsia);
+    --bs-link-color-rgb: var(--brand-fuchsia-rgb);
+    --bs-link-hover-color: var(--brand-fuchsia);
+    --bs-link-hover-color-rgb: var(--brand-fuchsia-rgb);
+    --bs-body-bg: var(--brand-white);
+    --bs-focus-ring-color: rgba(var(--brand-fuchsia-rgb), 0.35);
+    --bs-border-radius: 0.75rem;
+    --bs-border-radius-lg: 1rem;
+
+    /* Movimiento: todas las transiciones usan estas duraciones (se anulan con prefers-reduced-motion) */
+    --motion-duration-fast: 150ms;
+    --motion-duration: 250ms;
+    --motion-duration-slow: 400ms;
+    --motion-easing: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+    /* Trama de puntos del afiche, en celeste translúcido (solo decorativa) */
+    --dot-pattern: radial-gradient(rgba(var(--brand-teal-rgb), 0.35) 1.5px, transparent 1.5px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --motion-duration-fast: 0ms;
+        --motion-duration: 0ms;
+        --motion-duration-slow: 0ms;
+    }
+}
+
+/* Botón principal: fucsia con texto blanco (contraste 4.6:1, AA). El hover no inventa tonos: suma un halo del mismo color */
+.btn-primary {
+    --bs-btn-color: var(--brand-white);
+    --bs-btn-bg: var(--brand-fuchsia);
+    --bs-btn-border-color: var(--brand-fuchsia);
+    --bs-btn-hover-color: var(--brand-white);
+    --bs-btn-hover-bg: var(--brand-fuchsia);
+    --bs-btn-hover-border-color: var(--brand-fuchsia);
+    --bs-btn-active-color: var(--brand-white);
+    --bs-btn-active-bg: var(--brand-fuchsia);
+    --bs-btn-active-border-color: var(--brand-fuchsia);
+    --bs-btn-disabled-color: var(--brand-white);
+    --bs-btn-disabled-bg: var(--brand-fuchsia);
+    --bs-btn-disabled-border-color: var(--brand-fuchsia);
+    --bs-btn-focus-shadow-rgb: var(--brand-fuchsia-rgb);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--brand-fuchsia);
+    --bs-btn-border-color: var(--brand-fuchsia);
+    --bs-btn-hover-color: var(--brand-white);
+    --bs-btn-hover-bg: var(--brand-fuchsia);
+    --bs-btn-hover-border-color: var(--brand-fuchsia);
+    --bs-btn-active-color: var(--brand-white);
+    --bs-btn-active-bg: var(--brand-fuchsia);
+    --bs-btn-active-border-color: var(--brand-fuchsia);
+    --bs-btn-disabled-color: var(--brand-fuchsia);
+    --bs-btn-disabled-border-color: var(--brand-fuchsia);
+    --bs-btn-focus-shadow-rgb: var(--brand-fuchsia-rgb);
+}
+
+/* Botones sobre los banners fucsia: blanco con texto fucsia (4.6:1) o contorno blanco */
+.btn-brand-light {
+    --bs-btn-color: var(--brand-fuchsia);
+    --bs-btn-bg: var(--brand-white);
+    --bs-btn-border-color: var(--brand-white);
+    --bs-btn-hover-color: var(--brand-fuchsia);
+    --bs-btn-hover-bg: var(--brand-white);
+    --bs-btn-hover-border-color: var(--brand-white);
+    --bs-btn-active-color: var(--brand-fuchsia);
+    --bs-btn-active-bg: var(--brand-white);
+    --bs-btn-active-border-color: var(--brand-white);
+    --bs-btn-focus-shadow-rgb: var(--brand-white-rgb);
+    font-weight: 700;
+}
+
+.btn-brand-outline-light {
+    --bs-btn-color: var(--brand-white);
+    --bs-btn-border-color: var(--brand-white);
+    --bs-btn-hover-color: var(--brand-fuchsia);
+    --bs-btn-hover-bg: var(--brand-white);
+    --bs-btn-hover-border-color: var(--brand-white);
+    --bs-btn-active-color: var(--brand-fuchsia);
+    --bs-btn-active-bg: var(--brand-white);
+    --bs-btn-active-border-color: var(--brand-white);
+    --bs-btn-focus-shadow-rgb: var(--brand-white-rgb);
+    font-weight: 700;
+}
+
+.btn-brand-light:hover,
+.btn-brand-outline-light:hover {
+    box-shadow: 0 0 0 0.25rem rgba(var(--brand-white-rgb), 0.35);
+}
+
+.btn-primary:hover,
+.btn-outline-primary:hover {
+    box-shadow: 0 0 0 0.25rem rgba(var(--brand-fuchsia-rgb), 0.2);
+}
+
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+    border-color: var(--brand-fuchsia);
+    box-shadow: 0 0 0 0.25rem rgba(var(--brand-fuchsia-rgb), 0.25);
+}
+
+.form-check-input:checked {
+    background-color: var(--brand-fuchsia);
+    border-color: var(--brand-fuchsia);
+}
+
+.nav-pills {
+    --bs-nav-pills-link-active-bg: var(--brand-fuchsia);
+    --bs-nav-pills-link-active-color: var(--brand-white);
+    --bs-nav-link-color: var(--bs-body-color);
+    --bs-nav-link-hover-color: var(--brand-fuchsia);
+}
+
+.spinner-border {
+    color: var(--brand-fuchsia);
+}
+
+/* Insignias de marca: el amarillo siempre lleva texto oscuro; el celeste, texto oscuro (4.7:1) */
+.badge-brand-yellow {
+    background-color: var(--brand-yellow);
+    color: var(--bs-body-color);
+}
+
+.badge-brand-teal {
+    background-color: var(--brand-teal);
+    color: var(--bs-body-color);
+}
+
+.badge-brand-fuchsia {
+    background-color: var(--brand-fuchsia);
+    color: var(--brand-white);
+}
+
+/* Los mensajes de ayuda y error de los formularios se leen al mismo tamaño que el cuerpo (16px) */
+.invalid-feedback,
+.form-text {
+    font-size: 1rem;
+}

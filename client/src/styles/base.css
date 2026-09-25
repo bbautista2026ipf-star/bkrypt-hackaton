@@ -1,0 +1,100 @@
+body {
+    font-size: 1rem;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#root {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+h1,
+h2,
+h3 {
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+
+:focus-visible {
+    outline: 3px solid var(--brand-fuchsia);
+    outline-offset: 2px;
+}
+
+.skip-link {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 2000;
+    padding: 0.5rem 1rem;
+    background-color: var(--brand-fuchsia);
+    color: var(--brand-white);
+    border-radius: var(--bs-border-radius);
+    transform: translateY(-200%);
+    transition: transform var(--motion-duration-fast) var(--motion-easing);
+}
+
+.skip-link:focus {
+    transform: translateY(0);
+    color: var(--brand-white);
+}
+
+/* Encabezado de página con los "banners" del afiche: fucsia con texto blanco y trama de puntos */
+.page-banner {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--brand-fuchsia);
+    color: var(--brand-white);
+}
+
+.page-banner::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: 40%;
+    background-image: radial-gradient(rgba(var(--brand-white-rgb), 0.25) 1.5px, transparent 1.5px);
+    background-size: 16px 16px;
+    pointer-events: none;
+}
+
+.page-banner > .container {
+    position: relative;
+    z-index: 1;
+}
+
+.page-banner .lead {
+    max-width: 42rem;
+}
+
+.banner-tag {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    background-color: var(--brand-yellow);
+    color: var(--bs-body-color);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.dot-pattern {
+    background-image: var(--dot-pattern);
+    background-size: 16px 16px;
+}
+
+.section-title {
+    display: inline-block;
+    padding-bottom: 0.25rem;
+    border-bottom: 4px solid var(--brand-teal);
+}
+
+.app-footer {
+    border-top: 4px solid var(--brand-yellow);
+}
