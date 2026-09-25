@@ -19,8 +19,6 @@ export const EntrepreneurEventLocation = sequelize.define("EntrepreneurEventLoca
 }, {
     tableName: "entrepreneur_event_locations",
     timestamps: true,
-    underscored: true,
-    indexes: [
-        { unique: true, fields: ["entrepreneur_profile_id", "event_location_id"] }
-    ]
+    underscored: true
+    // El índice único del par (emprendedor, feria) lo crea la relación belongsToMany en relations.js
 });

@@ -75,10 +75,12 @@ export const setupRelations = () => {
     });
 
     // EntrepreneurProfile N:M EventLocation a través de EntrepreneurEventLocation
+    // uniqueKey: el nombre autogenerado del índice único supera el límite de 64 caracteres de MySQL
     EntrepreneurProfile.belongsToMany(EventLocation, {
         through: EntrepreneurEventLocation,
         foreignKey: "entrepreneur_profile_id",
         otherKey: "event_location_id",
+        uniqueKey: "entrepreneur_fair_unique",
         as: "fairs",
         onDelete: "CASCADE"
     });
@@ -86,6 +88,7 @@ export const setupRelations = () => {
         through: EntrepreneurEventLocation,
         foreignKey: "event_location_id",
         otherKey: "entrepreneur_profile_id",
+        uniqueKey: "entrepreneur_fair_unique",
         as: "entrepreneurs",
         onDelete: "CASCADE"
     });
