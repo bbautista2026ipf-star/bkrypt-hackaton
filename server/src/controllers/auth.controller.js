@@ -2,9 +2,12 @@ import { matchedData } from "express-validator";
 import { sequelize } from "../config/database.js";
 import { User } from "../models/user.model.js";
 import { EntrepreneurProfile } from "../models/entrepreneur_profile.model.js";
+import { EntrepreneurRequest } from "../models/entrepreneur_request.model.js";
 import { EventLocation } from "../models/event_location.model.js";
 import { hashPassword, comparePassword } from "../helpers/bcrypt.helper.js";
-import { generateToken } from "../helpers/jwt.helper.js";
+import { generateToken, verifyToken, TOKEN_PURPOSES } from "../helpers/jwt.helper.js";
+import { createPendingEntrepreneurRequest } from "../helpers/entrepreneur.helper.js";
+import { sendVerificationEmail, notifyAdminOfEntrepreneurRequest } from "../helpers/mail.helper.js";
 
 const SESSION_COOKIE = "sessionToken";
 
@@ -18,6 +21,7 @@ const cookieOptions = {
 // Nunca se devuelve el hash de la contraseña al cliente
 const toPublicUser = (user) => ({
     id: user.id,
+    name: user.name,
     email: user.email,
     role: user.role,
     is_email_verified: user.is_email_verified
@@ -30,49 +34,32 @@ const fairsInclude = {
     through: { attributes: [] }
 };
 
-const createEntrepreneurProfile = async (userId, profileData, transaction) => {
-    const { brand_name, biography, whatsapp_number, has_store, store_address, store_latitude, store_longitude, event_location_ids } = profileData;
-    const newProfile = await EntrepreneurProfile.create({
-        user_id: userId,
-        brand_name,
-        biography,
-        whatsapp_number,
-        has_store,
-        store_address: has_store ? store_address : null,
-        store_latitude: has_store ? store_latitude : null,
-        store_longitude: has_store ? store_longitude : null
-    }, { transaction });
-
-    if (Array.isArray(event_location_ids) && event_location_ids.length > 0) {
-        await newProfile.setFairs([...new Set(event_location_ids)], { transaction });
-    }
-    return newProfile;
-};
-
 export const register = async (req, res) => {
     try {
-        const { email, password, role, ...profileData } = matchedData(req, { locations: ["body"] });
+        const { name, email, password, role, ...businessData } = matchedData(req, { locations: ["body"] });
         const password_hash = await hashPassword(password);
 
-        // Transacción: si falla la creación del perfil o de sus ferias, no queda un usuario emprendedor a medias
-        const { newUser, newProfileId } = await sequelize.transaction(async (transaction) => {
-            const newUser = await User.create({ email, password_hash, role }, { transaction });
-            let newProfileId = null;
-            if (role === "entrepreneur") {
-                const newProfile = await createEntrepreneurProfile(newUser.id, profileData, transaction);
-                newProfileId = newProfile.id;
-            }
-            return { newUser, newProfileId };
+        // El rol entrepreneur nunca se otorga al registrarse: queda una solicitud pendiente y la cuenta opera como consumidor.
+        // Transacción: si falla la solicitud, no queda un usuario creado a medias
+        const { newUser, entrepreneurRequest } = await sequelize.transaction(async (transaction) => {
+            const newUser = await User.create({ name, email, password_hash, role: "consumer" }, { transaction });
+            const entrepreneurRequest = role === "entrepreneur"
+                ? await createPendingEntrepreneurRequest(newUser.id, businessData, transaction)
+                : null;
+            return { newUser, entrepreneurRequest };
         });
 
-        const entrepreneurProfile = newProfileId
-            ? await EntrepreneurProfile.findByPk(newProfileId, { include: fairsInclude })
-            : null;
+        sendVerificationEmail(newUser);
+        if (entrepreneurRequest) {
+            notifyAdminOfEntrepreneurRequest(newUser, entrepreneurRequest);
+        }
 
         return res.status(201).json({
-            message: "Usuario registrado con éxito",
+            message: entrepreneurRequest
+                ? "Cuenta creada. Tu solicitud de emprendedor quedó pendiente de revisión; mientras tanto usás la plataforma como consumidor"
+                : "Cuenta creada con éxito",
             user: toPublicUser(newUser),
-            entrepreneurProfile
+            entrepreneurRequest
         });
     } catch (error) {
         console.error("Error en el registro de usuario:", error);
@@ -94,7 +81,8 @@ export const login = async (req, res) => {
             return res.status(401).json({ message: "Credenciales incorrectas" });
         }
 
-        const token = generateToken({ user_id: registeredUser.id, user_role: registeredUser.role });
+        // El token solo identifica al usuario: el rol se consulta en la base en cada petición
+        const token = generateToken({ user_id: registeredUser.id, purpose: TOKEN_PURPOSES.session });
         res.cookie(SESSION_COOKIE, token, cookieOptions);
 
         return res.status(200).json({
@@ -126,12 +114,51 @@ export const getCurrentUser = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: "Usuario no encontrado" });
         }
+        const latestEntrepreneurRequest = await EntrepreneurRequest.findOne({
+            where: { user_id: user.id },
+            attributes: ["id", "brand_name", "status", "rejection_reason", "createdAt", "reviewed_at"],
+            order: [["createdAt", "DESC"]]
+        });
         return res.status(200).json({
             user: toPublicUser(user),
-            entrepreneurProfile: user.entrepreneurProfile
+            entrepreneurProfile: user.entrepreneurProfile,
+            entrepreneurRequest: latestEntrepreneurRequest
         });
     } catch (error) {
         console.error("Error al obtener el usuario autenticado:", error);
+        return res.status(500).json({ message: "Ocurrió un error interno en el servidor" });
+    }
+};
+
+export const verifyEmail = async (req, res) => {
+    try {
+        const { token } = matchedData(req, { locations: ["body"] });
+        const payload = verifyToken(token, TOKEN_PURPOSES.emailVerification);
+        const user = payload ? await User.findByPk(payload.user_id) : null;
+        if (!user) {
+            return res.status(400).json({ message: "El enlace de verificación es inválido o ya venció. Pedí uno nuevo desde tu perfil" });
+        }
+        if (user.is_email_verified) {
+            return res.status(200).json({ message: "Tu correo ya estaba verificado" });
+        }
+        await user.update({ is_email_verified: true });
+        return res.status(200).json({ message: "Correo verificado con éxito" });
+    } catch (error) {
+        console.error("Error al verificar el correo:", error);
+        return res.status(500).json({ message: "Ocurrió un error interno en el servidor" });
+    }
+};
+
+export const resendVerificationEmail = async (req, res) => {
+    try {
+        const user = await User.findByPk(req.userData.user_id);
+        if (user.is_email_verified) {
+            return res.status(409).json({ message: "Tu correo ya está verificado" });
+        }
+        sendVerificationEmail(user);
+        return res.status(200).json({ message: "Te enviamos un nuevo enlace de verificación" });
+    } catch (error) {
+        console.error("Error al reenviar la verificación de correo:", error);
         return res.status(500).json({ message: "Ocurrió un error interno en el servidor" });
     }
 };
