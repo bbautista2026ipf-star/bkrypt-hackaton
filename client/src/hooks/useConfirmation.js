@@ -1,26 +1,27 @@
 import { useCallback, useState } from "react";
 import useAsyncAction from "./useAsyncAction.js";
 
-// Acción destructiva con confirmación previa (eliminar producto, evento, ubicación u opinión)
+// Acción destructiva con confirmación previa (eliminar producto, reseña, horario o feria).
+// Al cerrar se conserva el elemento elegido para que el diálogo no quede vacío durante su animación de salida.
 function useConfirmation(action) {
-    const [target, setTarget] = useState(null);
+    const [dialog, setDialog] = useState({ target: null, isOpen: false });
     const { isRunning, error, run, reset } = useAsyncAction(action);
 
     const open = useCallback((item) => {
         reset();
-        setTarget(item);
+        setDialog({ target: item, isOpen: true });
     }, [reset]);
 
-    const close = useCallback(() => setTarget(null), []);
+    const close = useCallback(() => setDialog((previous) => ({ ...previous, isOpen: false })), []);
 
     const confirm = useCallback(async () => {
-        const isDone = await run(target);
+        const isDone = await run(dialog.target);
         if (isDone) {
-            setTarget(null);
+            close();
         }
-    }, [run, target]);
+    }, [run, dialog.target, close]);
 
-    return { target, isOpen: Boolean(target), isRunning, error, open, close, confirm };
+    return { target: dialog.target, isOpen: dialog.isOpen, isRunning, error, open, close, confirm };
 }
 
 export default useConfirmation;

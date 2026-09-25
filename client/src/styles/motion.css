@@ -26,7 +26,8 @@
 }
 
 .fade-in-up {
-    animation: fade-in-up var(--motion-duration-slow) var(--motion-easing) both;
+    /* "backwards" y no "both": al terminar no queda un transform aplicado que cree un contexto de apilamiento */
+    animation: fade-in-up var(--motion-duration-slow) var(--motion-easing) backwards;
 }
 
 /* Tarjeta que se eleva al pasar el mouse: la sombra vive en un pseudo-elemento y solo cambia su opacidad */

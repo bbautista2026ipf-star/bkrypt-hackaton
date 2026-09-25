@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import PropTypes from "prop-types";
 import { Modal } from "bootstrap";
 
@@ -43,7 +44,8 @@ function BootstrapModal({ id, title, isOpen, onClose, children, footer = null })
         }
     }, [isOpen]);
 
-    return (
+    // Se monta directo en <body>: si quedara dentro de un contenedor con transform (animaciones), el fondo de Bootstrap lo taparía
+    return createPortal(
         <div ref={modalRef} className="modal fade" id={id} tabIndex={-1} aria-labelledby={`${id}-title`} aria-hidden="true">
             <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div className="modal-content">
@@ -55,7 +57,8 @@ function BootstrapModal({ id, title, isOpen, onClose, children, footer = null })
                     {footer ? <div className="modal-footer">{footer}</div> : null}
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
 
