@@ -11,7 +11,6 @@ import ProductDetailPage from "./pages/ProductDetailPage.jsx";
 import EntrepreneurProfilePage from "./pages/EntrepreneurProfilePage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
-import VerifyEmailPage from "./pages/VerifyEmailPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import MyCatalogPage from "./pages/MyCatalogPage.jsx";
 import ForbiddenPage from "./pages/ForbiddenPage.jsx";
@@ -39,7 +38,6 @@ function App() {
                             <Route path="emprendedores/:entrepreneurId" element={<EntrepreneurProfilePage />} />
                             <Route path="ingresar" element={<LoginPage />} />
                             <Route path="registro" element={<RegisterPage />} />
-                            <Route path="verificar-email" element={<VerifyEmailPage />} />
                             <Route path="perfil" element={<RequireSession><ProfilePage /></RequireSession>} />
                             <Route path="mi-catalogo" element={<RequireSession roles={[ROLES.entrepreneur]}><MyCatalogPage /></RequireSession>} />
                             <Route path="mi-catalogo/nuevo" element={<RequireSession roles={[ROLES.entrepreneur]}><ProductEditorPage /></RequireSession>} />

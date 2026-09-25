@@ -50,7 +50,6 @@ export const PATHS = {
     agenda: "/agenda",
     login: "/ingresar",
     register: "/registro",
-    verifyEmail: "/verificar-email",
     profile: "/perfil",
     myCatalog: "/mi-catalogo",
     newProduct: "/mi-catalogo/nuevo",
