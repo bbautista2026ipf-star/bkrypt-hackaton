@@ -82,3 +82,40 @@ Luego de la nomenclatura, inicia la descripción con un verbo en formato imperso
 - `docs: se actualizó el README con las instrucciones de instalación`
 - `chore: se modificó la configuración de dependencias iniciales`
 - `feat: se realizó la integración completa del módulo de pagos`
+
+# Paleta de Colores para la pagina
+
+## Colores Extraídos
+
+### 1. Rosa / Fucsia
+
+- **HEX:** `#E3007B`
+- **RGB:** `rgb(227, 0, 123)`
+- **Uso:** Fondo del banner "FERIA", íconos de información y texto "FORMOSA CAPITAL, TODO EL AÑO".
+
+### 2. Amarillo
+
+- **HEX:** `#FFD500`
+- **RGB:** `rgb(255, 213, 0)`
+- **Uso:** Fondo del banner "CON AMIGOS".
+
+### 3. Celeste / Turquesa
+
+- **HEX:** `#0099A8`
+- **RGB:** `rgb(0, 153, 168)`
+- **Uso:** Textos descriptivos, datos del evento y trama de puntos decorativa.
+
+### 4. Blanco
+
+- **HEX:** `#FFFFFF`
+- **RGB:** `rgb(255, 255, 255)`
+- **Uso:** Fondo general del afiche y tipografía dentro de los banners.
+
+## Tabla de Resumen
+
+| Color             | Uso en la Imagen                               | Código HEX | Código RGB      |
+| :---------------- | :--------------------------------------------- | :--------- | :-------------- |
+| **Rosa / Fucsia** | Fondo banner "FERIA", íconos, texto secundario | `#E3007B`  | `227, 0, 123`   |
+| **Amarillo**      | Fondo banner "CON AMIGOS"                      | `#FFD500`  | `255, 213, 0`   |
+| **Celeste**       | Textos informativos, trama de puntos           | `#0099A8`  | `0, 153, 168`   |
+| **Blanco**        | Fondo principal del afiche, texto en banners   | `#FFFFFF`  | `255, 255, 255` |
