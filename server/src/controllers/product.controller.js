@@ -1,11 +1,12 @@
 import { matchedData } from "express-validator";
-import { Op } from "sequelize";
+import { Op, literal, where as sequelizeWhere } from "sequelize";
 import { Product } from "../models/product.model.js";
 import { EntrepreneurProfile } from "../models/entrepreneur_profile.model.js";
 import { Review } from "../models/review.model.js";
 import { User } from "../models/user.model.js";
 import { ratingAttributes, formatProductRating } from "../helpers/rating.helper.js";
 import { toPublicUploadPath, deleteUploadedFile } from "../helpers/file.helper.js";
+import { productDistanceSql } from "../helpers/geo.helper.js";
 
 const buildProductFilters = ({ category, available, search }) => {
     const where = {};
@@ -21,16 +22,56 @@ const buildProductFilters = ({ category, available, search }) => {
     return where;
 };
 
+const DEFAULT_PAGE_SIZE = 20;
+const DEFAULT_RADIUS_KM = 10;
+
+// Con lat/lng se filtra por radio y se ordena del más cercano al más lejano
+const buildProximityOptions = ({ lat, lng, radius_km = DEFAULT_RADIUS_KM }) => {
+    if (lat === undefined || lng === undefined) {
+        return null;
+    }
+    const distance = literal(productDistanceSql(lat, lng));
+    return {
+        attribute: [distance, "distance_km"],
+        condition: sequelizeWhere(distance, { [Op.lte]: radius_km }),
+        order: [[literal("distance_km"), "ASC"]]
+    };
+};
+
+const formatCatalogProduct = (product) => {
+    const data = formatProductRating(product);
+    if (data.distance_km !== undefined) {
+        data.distance_km = Number(data.distance_km);
+    }
+    return data;
+};
+
 export const getProducts = async (req, res) => {
     try {
-        const filters = matchedData(req, { locations: ["query"] });
-        const products = await Product.findAll({
-            where: buildProductFilters(filters),
-            attributes: { include: ratingAttributes() },
+        const { page = 1, limit = DEFAULT_PAGE_SIZE, lat, lng, radius_km, ...filters } = matchedData(req, { locations: ["query"] });
+        const where = buildProductFilters(filters);
+        const attributes = [...ratingAttributes()];
+        let order = [["createdAt", "DESC"]];
+
+        const proximity = buildProximityOptions({ lat, lng, radius_km });
+        if (proximity) {
+            attributes.push(proximity.attribute);
+            where[Op.and] = [proximity.condition];
+            order = [...proximity.order, ...order];
+        }
+
+        const { count, rows } = await Product.findAndCountAll({
+            where,
+            attributes: { include: attributes },
             include: { model: EntrepreneurProfile, as: "entrepreneur", attributes: ["id", "brand_name"] },
-            order: [["createdAt", "DESC"]]
+            order,
+            limit,
+            offset: (page - 1) * limit
         });
-        return res.status(200).json({ products: products.map(formatProductRating) });
+        return res.status(200).json({
+            products: rows.map(formatCatalogProduct),
+            pagination: { page, limit, total: count, total_pages: Math.ceil(count / limit) }
+        });
     } catch (error) {
         console.error("Error al obtener el catálogo de productos:", error);
         return res.status(500).json({ message: "Ocurrió un error interno en el servidor" });
