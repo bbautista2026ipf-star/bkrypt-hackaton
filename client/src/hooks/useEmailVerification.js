@@ -1,16 +1,10 @@
 import { useCallback, useState } from "react";
 import useAsyncData from "./useAsyncData.js";
-import useAuth from "./useAuth.js";
 import { resendVerificationEmail, verifyEmail } from "../services/auth.service.js";
 
 // Confirma el correo con el token del enlace recibido por email
 export function useEmailVerification(token) {
-    const { refreshSession } = useAuth();
-    const confirmEmail = useCallback(async () => {
-        const result = await verifyEmail(token);
-        await refreshSession();
-        return result;
-    }, [token, refreshSession]);
+    const confirmEmail = useCallback(() => verifyEmail(token), [token]);
     const { data, status, error } = useAsyncData(confirmEmail, { enabled: Boolean(token) });
 
     return {
@@ -19,14 +13,14 @@ export function useEmailVerification(token) {
     };
 }
 
-// Pide un nuevo enlace de verificación para la cuenta con sesión
+// Pide un nuevo enlace de verificación. Es público porque sin el email verificado no se puede iniciar sesión.
 export function useResendVerification() {
     const [state, setState] = useState({ status: "idle", message: null });
 
-    const resend = useCallback(async () => {
+    const resend = useCallback(async (email) => {
         setState({ status: "sending", message: null });
         try {
-            const { message } = await resendVerificationEmail();
+            const { message } = await resendVerificationEmail(email);
             setState({ status: "success", message });
         } catch (error) {
             setState({ status: "error", message: error.message });

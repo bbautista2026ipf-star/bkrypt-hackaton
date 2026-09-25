@@ -4,11 +4,12 @@ import useRegisterForm from "../hooks/useRegisterForm.js";
 import FormField from "../components/FormField.jsx";
 import FormAlert from "../components/FormAlert.jsx";
 import BusinessFields from "../components/BusinessFields.jsx";
+import ResendVerification from "../components/ResendVerification.jsx";
 import { PATHS, ROLES } from "../lib/constants.js";
 
 const ROLE_OPTIONS = [
-    { value: ROLES.consumer, title: "Soy consumidor", text: "Quiero descubrir productos, ferias y dejar opiniones." },
-    { value: ROLES.entrepreneur, title: "Tengo un emprendimiento", text: "Quiero publicar mi catálogo. La administración revisa la solicitud; mientras tanto usás la cuenta como consumidor." }
+    { value: ROLES.consumer, title: "Soy consumidor", text: "Quiero descubrir productos y ferias, y calificar lo que compro." },
+    { value: ROLES.entrepreneur, title: "Tengo un emprendimiento", text: "Quiero publicar mi catálogo y cargar los horarios en los que voy a estar en las ferias." }
 ];
 
 function RegisterPage() {
@@ -23,8 +24,11 @@ function RegisterPage() {
                     <div className="col-12 col-md-8 col-lg-6 text-center fade-in-up">
                         <h1 className="h2">¡Listo, {registration.user.name}!</h1>
                         <p className="lead">{registration.message}.</p>
-                        <p>Te enviamos un correo a <strong>{registration.user.email}</strong> para verificar tu dirección. Verificarla te permite publicar opiniones{registration.entrepreneurRequest ? " y es necesaria para que aprueben tu emprendimiento" : ""}.</p>
-                        <Link className="btn btn-primary" to={PATHS.login}>Iniciar sesión</Link>
+                        <p>Abrí el enlace que enviamos a <strong>{registration.user.email}</strong>: sin verificar el correo no se puede iniciar sesión.</p>
+                        <div className="d-flex flex-column align-items-center gap-3">
+                            <ResendVerification email={registration.user.email} />
+                            <Link className="btn btn-primary" to={PATHS.login}>Ir a iniciar sesión</Link>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -4,14 +4,14 @@ import { getCurrentUser, loginUser, logoutUser } from "../services/auth.service.
 
 export const AuthContext = createContext(null);
 
-const ANONYMOUS_SESSION = { user: null, entrepreneurProfile: null, entrepreneurRequest: null };
+const ANONYMOUS_SESSION = { user: null, entrepreneurProfile: null };
 
 // Sin sesión el backend responde 401: es el estado normal de un visitante. Ante otros errores (red) devuelve null
 // para conservar la sesión que ya se conocía.
 const fetchSession = async () => {
     try {
-        const { user, entrepreneurProfile, entrepreneurRequest } = await getCurrentUser();
-        return { user, entrepreneurProfile, entrepreneurRequest };
+        const { user, entrepreneurProfile } = await getCurrentUser();
+        return { user, entrepreneurProfile };
     } catch (error) {
         return error.status === 401 || error.status === 404 ? ANONYMOUS_SESSION : null;
     }

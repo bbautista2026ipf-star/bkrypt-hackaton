@@ -17,14 +17,15 @@ function VerifyEmailPage() {
                     {status === "loading" ? <LoadingState message="Verificando tu correo..." /> : null}
                     {status === "success" ? (
                         <div className="fade-in-up">
-                            <p className="alert alert-success" role="status">{message}. Ya podés publicar opiniones.</p>
-                            <Link className="btn btn-primary" to={PATHS.catalog}>Ir al catálogo</Link>
+                            <p className="alert alert-success" role="status">{message}.</p>
+                            <Link className="btn btn-primary" to={PATHS.login}>Iniciar sesión</Link>
                         </div>
                     ) : null}
                     {status === "error" ? (
                         <div>
                             <p className="alert alert-danger" role="alert">{message}</p>
-                            <Link className="btn btn-outline-primary" to={PATHS.profile}>Pedir un enlace nuevo desde mi perfil</Link>
+                            <p>Intentá iniciar sesión: si tu correo todavía no está verificado, vas a poder pedir un enlace nuevo.</p>
+                            <Link className="btn btn-outline-primary" to={PATHS.login}>Ir a iniciar sesión</Link>
                         </div>
                     ) : null}
                 </div>

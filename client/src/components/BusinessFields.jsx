@@ -13,24 +13,18 @@ function BusinessFields({ values, errors, onChange, onFieldValue, idPrefix }) {
             <FormField id={`${idPrefix}-brand`} name="brand_name" label="Nombre del emprendimiento" required value={values.brand_name} onChange={onChange} error={errors.brand_name} autoComplete="organization" />
             <FormField id={`${idPrefix}-biography`} name="biography" label="Contanos qué hacés" as="textarea" rows={3} maxLength={1000} value={values.biography} onChange={onChange} error={errors.biography} />
 
-            <fieldset className="mb-2">
-                <legend className="h6 fw-bold">Contacto</legend>
-                <p className="form-text mt-0">Indicá al menos WhatsApp o correo: es el canal por el que te van a escribir.</p>
-                <div className="row">
-                    <div className="col-12 col-md-6">
-                        <FormField id={`${idPrefix}-whatsapp`} name="whatsapp_number" label="WhatsApp" type="tel" inputMode="tel" placeholder="+5493704123456" value={values.whatsapp_number} onChange={onChange} error={errors.whatsapp_number} help="Con código de país y de área, sin espacios." />
-                    </div>
-                    <div className="col-12 col-md-6">
-                        <FormField id={`${idPrefix}-contact-email`} name="contact_email" label="Correo de contacto" type="email" value={values.contact_email} onChange={onChange} error={errors.contact_email} />
-                    </div>
-                    <div className="col-12 col-md-6">
-                        <FormField id={`${idPrefix}-instagram`} name="instagram_url" label="Instagram" type="url" placeholder="https://www.instagram.com/tu-emprendimiento" value={values.instagram_url} onChange={onChange} error={errors.instagram_url} />
-                    </div>
-                    <div className="col-12 col-md-6">
-                        <FormField id={`${idPrefix}-facebook`} name="facebook_url" label="Facebook" type="url" placeholder="https://www.facebook.com/tu-emprendimiento" value={values.facebook_url} onChange={onChange} error={errors.facebook_url} />
-                    </div>
-                </div>
-            </fieldset>
+            <FormField
+                id={`${idPrefix}-whatsapp`}
+                name="whatsapp_number"
+                label="WhatsApp del emprendimiento"
+                type="tel"
+                inputMode="tel"
+                placeholder="+5493704123456"
+                value={values.whatsapp_number}
+                onChange={onChange}
+                error={errors.whatsapp_number}
+                help="Es el canal por el que te van a consultar. Con código de país y de área, sin espacios."
+            />
 
             <fieldset className="mb-3">
                 <legend className="h6 fw-bold">¿Dónde te encuentran?</legend>
@@ -86,9 +80,6 @@ BusinessFields.propTypes = {
         brand_name: PropTypes.string.isRequired,
         biography: PropTypes.string.isRequired,
         whatsapp_number: PropTypes.string.isRequired,
-        contact_email: PropTypes.string.isRequired,
-        instagram_url: PropTypes.string.isRequired,
-        facebook_url: PropTypes.string.isRequired,
         has_store: PropTypes.bool.isRequired,
         store_address: PropTypes.string.isRequired,
         store_latitude: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,

@@ -1,14 +1,12 @@
 import { useCallback, useMemo, useState } from "react";
 import useAuth from "./useAuth.js";
 import useForm from "./useForm.js";
-import { submitEntrepreneurRequest } from "../services/auth.service.js";
 import { updateOwnEntrepreneurProfile } from "../services/entrepreneur.service.js";
 import { EMPTY_BUSINESS, businessFromProfile, toBusinessPayload, validateBusiness } from "../lib/businessForm.js";
 
-// Mismo formulario extendido para dos casos: el consumidor que pide ser emprendedor y el emprendedor que edita su perfil
+// Edición del perfil del emprendimiento. Si el local o las ferias quedan incoherentes, el backend responde con un mensaje general.
 function useBusinessForm() {
     const { entrepreneurProfile, refreshSession } = useAuth();
-    const isEditingProfile = Boolean(entrepreneurProfile);
     const initialValues = useMemo(
         () => (entrepreneurProfile ? businessFromProfile(entrepreneurProfile) : EMPTY_BUSINESS),
         [entrepreneurProfile]
@@ -21,16 +19,13 @@ function useBusinessForm() {
         event.preventDefault();
         setSuccessMessage(null);
         await submit(async (values) => {
-            const payload = toBusinessPayload(values);
-            const { message } = isEditingProfile
-                ? await updateOwnEntrepreneurProfile(payload)
-                : await submitEntrepreneurRequest(payload);
+            const { message } = await updateOwnEntrepreneurProfile(toBusinessPayload(values, { isUpdate: true }));
             await refreshSession();
             setSuccessMessage(message);
         });
-    }, [submit, isEditingProfile, refreshSession]);
+    }, [submit, refreshSession]);
 
-    return { ...form, handleSubmit, isEditingProfile, successMessage };
+    return { ...form, handleSubmit, successMessage };
 }
 
 export default useBusinessForm;

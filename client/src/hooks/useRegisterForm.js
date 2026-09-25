@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import useForm from "./useForm.js";
 import { registerUser } from "../services/auth.service.js";
 import { EMPTY_BUSINESS, toBusinessPayload, validateBusiness } from "../lib/businessForm.js";
-import { collectErrors, validateEmail, validateLength, validatePassword } from "../lib/validators.js";
+import { collectErrors, validateEmail, validatePassword, validatePersonName } from "../lib/validators.js";
 import { ROLES } from "../lib/constants.js";
 
 const INITIAL_VALUES = {
@@ -17,7 +17,7 @@ const INITIAL_VALUES = {
 // El formulario extendido solo se valida si el visitante eligió registrarse como emprendedor
 const validateRegistration = (values) => ({
     ...collectErrors({
-        name: validateLength(values.name, { label: "El nombre", min: 2, max: 60 }),
+        name: validatePersonName(values.name),
         email: validateEmail(values.email),
         password: validatePassword(values.password),
         password_confirmation: values.password === values.password_confirmation ? null : "Las contraseñas no coinciden"
