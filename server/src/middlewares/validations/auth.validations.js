@@ -1,6 +1,6 @@
 import { body, query } from "express-validator";
 import { User } from "../../models/user.model.js";
-import { EventLocation } from "../../models/event_location.model.js";
+import { assertEventLocationsExist } from "./entrepreneur.validations.js";
 
 const isTrueValue = (value) => value === true || value === "true";
 
@@ -88,18 +88,10 @@ export const registerValidations = [
                 }
                 return true;
             }
-            if (!Array.isArray(eventLocationIds)) {
-                throw new Error("Las ferias deben enviarse como una lista de ids");
-            }
-            if (!storeDeclared && eventLocationIds.length === 0) {
+            if (!storeDeclared && Array.isArray(eventLocationIds) && eventLocationIds.length === 0) {
                 throw new Error("Si no tenés local, indicá al menos una feria a la que asistís");
             }
-            const uniqueIds = [...new Set(eventLocationIds)];
-            const existingCount = await EventLocation.count({ where: { id: uniqueIds } });
-            if (existingCount !== uniqueIds.length) {
-                throw new Error("Alguna de las ferias indicadas no existe");
-            }
-            return true;
+            return assertEventLocationsExist(eventLocationIds);
         })
 ];
 
