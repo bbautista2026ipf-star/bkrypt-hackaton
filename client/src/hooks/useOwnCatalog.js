@@ -1,21 +1,24 @@
 import { useCallback } from "react";
+import useAuth from "./useAuth.js";
 import useAsyncData from "./useAsyncData.js";
-import useForbiddenRedirect from "./useForbiddenRedirect.js";
-import { getOwnEntrepreneurProfile } from "../services/entrepreneur.service.js";
+import { getEntrepreneur } from "../services/entrepreneur.service.js";
 import { deleteProduct } from "../services/product.service.js";
 
-// "Mi catálogo": solo los productos del emprendedor con sesión. El backend responde 403 a cualquier otro rol.
+// "Mi catálogo": el perfil propio se identifica con la sesión (/auth/me) y se lee del perfil público.
+// Borrar un producto ajeno lo rechaza el backend (403), aunque el botón solo aparezca en productos propios.
 function useOwnCatalog() {
-    const { data, status, error, reload, setData } = useAsyncData(getOwnEntrepreneurProfile);
-    useForbiddenRedirect(error);
+    const { entrepreneurProfile } = useAuth();
+    const profileId = entrepreneurProfile?.id ?? null;
+    const loadProfile = useCallback(() => getEntrepreneur(profileId), [profileId]);
+    const { data, status, error, reload, setData } = useAsyncData(loadProfile, { enabled: Boolean(profileId) });
 
-    const removeProduct = useCallback(async (productId) => {
-        await deleteProduct(productId);
+    const removeProduct = useCallback(async (product) => {
+        await deleteProduct(product.id);
         setData((previous) => ({
             ...previous,
             entrepreneur: {
                 ...previous.entrepreneur,
-                products: previous.entrepreneur.products.filter((product) => product.id !== productId)
+                products: previous.entrepreneur.products.filter((existing) => existing.id !== product.id)
             }
         }));
     }, [setData]);

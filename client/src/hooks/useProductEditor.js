@@ -1,40 +1,40 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router";
+import useAuth from "./useAuth.js";
 import useAsyncData from "./useAsyncData.js";
 import useForbiddenRedirect from "./useForbiddenRedirect.js";
 import { ApiError } from "../services/apiClient.js";
-import { getOwnEntrepreneurProfile } from "../services/entrepreneur.service.js";
 import { createProduct, getProduct, updateProduct } from "../services/product.service.js";
 import { PATHS } from "../lib/constants.js";
-import { toProductPayload } from "../lib/productForm.js";
+import { toProductFormData } from "../lib/productForm.js";
 
-// Busca el producto dentro del catálogo propio: el servidor responde 403 si quien pide no es emprendedor.
-// Si el producto existe pero es de otro emprendedor, también es un problema de permisos.
-const findOwnProduct = async (productId) => {
-    const { entrepreneur } = await getOwnEntrepreneurProfile();
-    if (!productId) {
-        return null;
-    }
-    const ownProduct = entrepreneur.products.find((product) => product.id === productId);
-    if (ownProduct) {
-        return ownProduct;
-    }
-    await getProduct(productId);
-    throw new ApiError(403, "Ese producto pertenece a otro emprendimiento");
-};
-
+// Alta y edición de productos. Si el producto es de otro emprendimiento se redirige a la página de permisos;
+// el backend igual responde 403 si alguien intenta guardarlo.
 function useProductEditor(productId) {
     const navigate = useNavigate();
-    const loadProduct = useCallback(() => findOwnProduct(productId), [productId]);
+    const { entrepreneurProfile } = useAuth();
+    const ownProfileId = entrepreneurProfile?.id ?? null;
+
+    const loadProduct = useCallback(async () => {
+        if (!productId) {
+            return null;
+        }
+        const { product } = await getProduct(productId);
+        if (product.entrepreneur.id !== ownProfileId) {
+            throw new ApiError(403, "Ese producto pertenece a otro emprendimiento");
+        }
+        return product;
+    }, [productId, ownProfileId]);
+
     const { data: product, status, error } = useAsyncData(loadProduct);
     useForbiddenRedirect(error);
 
     const saveProduct = useCallback(async (values) => {
-        const payload = toProductPayload(values);
+        const productData = toProductFormData(values, { isEditing: Boolean(productId) });
         if (productId) {
-            await updateProduct(productId, payload);
+            await updateProduct(productId, productData);
         } else {
-            await createProduct(payload);
+            await createProduct(productData);
         }
         navigate(PATHS.myCatalog, { state: { flash: productId ? "Producto actualizado" : "Producto publicado" } });
     }, [productId, navigate]);

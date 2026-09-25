@@ -12,14 +12,14 @@ import ErrorState from "../components/ErrorState.jsx";
 import EmptyState from "../components/EmptyState.jsx";
 import { PATHS } from "../lib/constants.js";
 
-// Solo los productos propios, con crear, editar y eliminar visibles. Un 403 del backend redirige a la página de permisos.
+// Solo los productos propios, con crear, editar y eliminar visibles. La ruta exige rol emprendedor y el backend valida cada cambio.
 function MyCatalogPage() {
     useDocumentTitle("Mi catálogo");
     const flashMessage = useFlashMessage();
     const { entrepreneur, products, status, error, reload, removeProduct } = useOwnCatalog();
-    const removal = useConfirmation((product) => removeProduct(product.id));
+    const removal = useConfirmation(removeProduct);
 
-    if (status === "error" && error.status !== 403) {
+    if (status === "error") {
         return <div className="container py-5"><ErrorState message={error.message} onRetry={reload} /></div>;
     }
     if (!entrepreneur) {
@@ -28,7 +28,7 @@ function MyCatalogPage() {
 
     return (
         <>
-            <PageBanner tag="Mi catálogo" title={entrepreneur.brand_name} lead="Mantené actualizados precios y stock: es lo que ven los consumidores.">
+            <PageBanner tag="Mi catálogo" title={entrepreneur.brand_name} lead="Mantené actualizados precios y disponibilidad: es lo que ven los consumidores.">
                 <Link className="btn btn-brand-light" to={PATHS.newProduct}>Publicar un producto</Link>
                 <Link className="btn btn-brand-outline-light" to={PATHS.entrepreneur(entrepreneur.id)}>Ver mi perfil público</Link>
             </PageBanner>
