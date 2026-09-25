@@ -9,6 +9,7 @@ import { authRouter } from './src/routes/auth.routes.js'
 import { productRouter } from './src/routes/product.routes.js'
 import { entrepreneurRouter } from './src/routes/entrepreneur.routes.js'
 import { eventLocationRouter } from './src/routes/event_location.routes.js'
+import { reviewRouter } from './src/routes/review.routes.js'
 import { notFoundHandler, errorHandler } from './src/middlewares/errorHandler.middleware.js'
 import { UPLOADS_ROOT } from './src/helpers/file.helper.js'
 
@@ -32,7 +33,8 @@ setupRelations()
 
 //acá activamos nuestras rutas pasandole a nuestra constante app por parametros la ruta general y el enrutador
 app.use('/api', authRouter) //rutas de autenticación (registro, login, logout)
-app.use('/api', productRouter) //rutas del catálogo de productos y sus calificaciones
+app.use('/api', productRouter) //rutas del catálogo de productos
+app.use('/api', reviewRouter) //rutas de calificaciones de productos
 app.use('/api', entrepreneurRouter) //rutas de perfiles de emprendedores y locales
 app.use('/api', eventLocationRouter) //rutas de ferias
 
