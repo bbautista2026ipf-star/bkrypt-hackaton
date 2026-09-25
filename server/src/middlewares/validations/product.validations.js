@@ -3,6 +3,8 @@ import { Product } from "../../models/product.model.js";
 
 const PRODUCT_CATEGORIES = Product.getAttributes().category.values;
 
+// Los productos se envían como multipart/form-data (por la imagen): todos los valores llegan como texto
+// y los sanitizadores (toFloat, toBoolean) los convierten al tipo correcto.
 // En la actualización todos los campos son opcionales; en la creación, los obligatorios se exigen
 const field = (name, isUpdate) => (isUpdate ? body(name).optional() : body(name));
 
@@ -19,11 +21,6 @@ const productBodyValidations = (isUpdate) => [
         .toFloat(),
     field("category", isUpdate)
         .isIn(PRODUCT_CATEGORIES).withMessage(`La categoría debe ser una de: ${PRODUCT_CATEGORIES.join(", ")}`),
-    body("image_url")
-        .optional()
-        .trim()
-        .isURL().withMessage("La imagen debe ser una URL válida")
-        .isLength({ max: 255 }).withMessage("La URL de la imagen no puede superar los 255 caracteres"),
     body("is_available")
         .optional()
         .isBoolean().withMessage("La disponibilidad debe ser true o false")
@@ -36,9 +33,13 @@ export const productIdValidation = [
 
 export const createProductValidations = productBodyValidations(false);
 
+// El id se valida antes (en la ruta) porque el dueño se verifica antes de recibir la imagen
 export const updateProductValidations = [
-    ...productIdValidation,
-    ...productBodyValidations(true)
+    ...productBodyValidations(true),
+    body("remove_image")
+        .optional()
+        .isBoolean().withMessage("remove_image debe ser true o false")
+        .toBoolean()
 ];
 
 export const productFiltersValidations = [
