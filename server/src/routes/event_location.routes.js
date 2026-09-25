@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { getEventLocations, createEventLocation, updateEventLocation, deleteEventLocation } from "../controllers/event_location.controller.js";
+import {
+    getEventLocations,
+    getEventLocationById,
+    createEventLocation,
+    updateEventLocation,
+    deleteEventLocation
+} from "../controllers/event_location.controller.js";
 import {
     eventLocationIdValidation,
     createEventLocationValidations,
@@ -11,8 +17,9 @@ import { authorizeRoles } from "../middlewares/authorization.middleware.js";
 
 export const eventLocationRouter = Router();
 
-// Ruta pública: la usa el formulario de registro del emprendedor para elegir sus ferias
+// Rutas públicas: listado (lo usa el registro del emprendedor) y detalle con sus emprendedores y próximos horarios
 eventLocationRouter.get("/event-locations", getEventLocations);
+eventLocationRouter.get("/event-locations/:id", eventLocationIdValidation, checkValidationsResult, getEventLocationById);
 
 // Rutas privadas solo para administradores
 eventLocationRouter.post("/event-locations", authentication, authorizeRoles("admin"), createEventLocationValidations, checkValidationsResult, createEventLocation);

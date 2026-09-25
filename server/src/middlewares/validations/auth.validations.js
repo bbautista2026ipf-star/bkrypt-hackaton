@@ -1,6 +1,6 @@
-import { body } from "express-validator";
+import { body, query } from "express-validator";
 import { User } from "../../models/user.model.js";
-import { EventLocation } from "../../models/event_location.model.js";
+import { assertEventLocationsExist } from "./entrepreneur.validations.js";
 
 const isTrueValue = (value) => value === true || value === "true";
 
@@ -8,7 +8,18 @@ const isEntrepreneur = body("role").equals("entrepreneur");
 
 const hasStore = (value, { req }) => req.body.role === "entrepreneur" && isTrueValue(req.body.has_store);
 
+const emailFormatValidation = () =>
+    body("email")
+        .trim()
+        .toLowerCase()
+        .notEmpty().withMessage("El email es obligatorio")
+        .isEmail().withMessage("El email debe tener un formato válido");
+
 export const registerValidations = [
+    body("name")
+        .trim()
+        .isLength({ min: 2, max: 100 }).withMessage("El nombre es obligatorio y debe tener entre 2 y 100 caracteres")
+        .matches(/^[\p{L}\s'.-]+$/u).withMessage("El nombre solo puede contener letras, espacios, puntos, apóstrofes y guiones"),
     body("email")
         .trim()
         .toLowerCase()
@@ -77,27 +88,25 @@ export const registerValidations = [
                 }
                 return true;
             }
-            if (!Array.isArray(eventLocationIds)) {
-                throw new Error("Las ferias deben enviarse como una lista de ids");
-            }
-            if (!storeDeclared && eventLocationIds.length === 0) {
+            if (!storeDeclared && Array.isArray(eventLocationIds) && eventLocationIds.length === 0) {
                 throw new Error("Si no tenés local, indicá al menos una feria a la que asistís");
             }
-            const uniqueIds = [...new Set(eventLocationIds)];
-            const existingCount = await EventLocation.count({ where: { id: uniqueIds } });
-            if (existingCount !== uniqueIds.length) {
-                throw new Error("Alguna de las ferias indicadas no existe");
-            }
-            return true;
+            return assertEventLocationsExist(eventLocationIds);
         })
 ];
 
 export const loginValidations = [
-    body("email")
-        .trim()
-        .toLowerCase()
-        .notEmpty().withMessage("El email es obligatorio")
-        .isEmail().withMessage("El email debe tener un formato válido"),
+    emailFormatValidation(),
     body("password")
         .notEmpty().withMessage("La contraseña es obligatoria")
+];
+
+export const verifyEmailValidations = [
+    query("token")
+        .notEmpty().withMessage("Falta el token de verificación")
+        .isJWT().withMessage("El link de verificación es inválido")
+];
+
+export const resendVerificationValidations = [
+    emailFormatValidation()
 ];

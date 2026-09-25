@@ -9,6 +9,10 @@ import { authRouter } from './src/routes/auth.routes.js'
 import { productRouter } from './src/routes/product.routes.js'
 import { entrepreneurRouter } from './src/routes/entrepreneur.routes.js'
 import { eventLocationRouter } from './src/routes/event_location.routes.js'
+import { reviewRouter } from './src/routes/review.routes.js'
+import { scheduleRouter } from './src/routes/schedule.routes.js'
+import { notFoundHandler, errorHandler } from './src/middlewares/errorHandler.middleware.js'
+import { UPLOADS_ROOT } from './src/helpers/file.helper.js'
 
 //guardamos instancia activa de express en memoria como constante "app"
 const app = express()
@@ -18,7 +22,7 @@ app.use(express.json())
 
 //activamos middleware global CORS (cross origin resource sharing), va estrictamente antes de las rutas, le decimos a nuestra app express que la use pasandole por parametros el origen y credentials
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: process.env.CLIENT_URL,
     credentials: true //esto es necesario para habilitar el uso de las cookies desde el frontend
 }))
 
@@ -30,9 +34,18 @@ setupRelations()
 
 //acá activamos nuestras rutas pasandole a nuestra constante app por parametros la ruta general y el enrutador
 app.use('/api', authRouter) //rutas de autenticación (registro, login, logout)
-app.use('/api', productRouter) //rutas del catálogo de productos y sus calificaciones
+app.use('/api', productRouter) //rutas del catálogo de productos
+app.use('/api', reviewRouter) //rutas de calificaciones de productos
 app.use('/api', entrepreneurRouter) //rutas de perfiles de emprendedores y locales
 app.use('/api', eventLocationRouter) //rutas de ferias
+app.use('/api', scheduleRouter) //rutas de la agenda de horarios en ferias
+
+//servimos de forma estática las imágenes subidas (por ejemplo /uploads/products/archivo.jpg)
+app.use('/uploads', express.static(UPLOADS_ROOT))
+
+//manejadores finales: rutas inexistentes y errores no controlados, siempre después de todas las rutas
+app.use(notFoundHandler)
+app.use(errorHandler)
 
 //dejamos al servidor en escucha pasandole por parametros el puerto (variable de entorno) y una función asíncrona que ejecuta la función que activa nuestra bd junto con un mensaje de éxito
 app.listen(process.env.PORT, async () => {
