@@ -6,6 +6,9 @@ import cors from 'cors'
 import { rundb } from './src/config/database.js'
 import { setupRelations } from './src/models/relations.js'
 import { authRouter } from './src/routes/auth.routes.js'
+import { productRouter } from './src/routes/product.routes.js'
+import { entrepreneurRouter } from './src/routes/entrepreneur.routes.js'
+import { eventLocationRouter } from './src/routes/event_location.routes.js'
 
 //guardamos instancia activa de express en memoria como constante "app"
 const app = express()
@@ -27,6 +30,9 @@ setupRelations()
 
 //acá activamos nuestras rutas pasandole a nuestra constante app por parametros la ruta general y el enrutador
 app.use('/api', authRouter) //rutas de autenticación (registro, login, logout)
+app.use('/api', productRouter) //rutas del catálogo de productos y sus calificaciones
+app.use('/api', entrepreneurRouter) //rutas de perfiles de emprendedores y locales
+app.use('/api', eventLocationRouter) //rutas de ferias
 
 //dejamos al servidor en escucha pasandole por parametros el puerto (variable de entorno) y una función asíncrona que ejecuta la función que activa nuestra bd junto con un mensaje de éxito
 app.listen(process.env.PORT, async () => {
