@@ -34,3 +34,14 @@ export const rateProduct = async (req, res) => {
         return res.status(500).json({ message: "Ocurrió un error interno en el servidor" });
     }
 };
+
+// req.resource lo carga el middleware canDeleteReview (autor de la calificación o admin)
+export const deleteReview = async (req, res) => {
+    try {
+        await req.resource.destroy();
+        return res.status(200).json({ message: "Calificación eliminada con éxito" });
+    } catch (error) {
+        console.error("Error al eliminar la calificación:", error);
+        return res.status(500).json({ message: "Ocurrió un error interno en el servidor" });
+    }
+};
