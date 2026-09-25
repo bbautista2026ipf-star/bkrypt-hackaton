@@ -7,6 +7,11 @@ export const User = sequelize.define("User", {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
+    // Nombre visible en el muro de opiniones: el email nunca se muestra públicamente
+    name: {
+        type: DataTypes.STRING(60),
+        allowNull: false
+    },
     email: {
         type: DataTypes.STRING,
         allowNull: false,
