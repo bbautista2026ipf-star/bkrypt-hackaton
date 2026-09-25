@@ -4,7 +4,6 @@ import useRegisterForm from "../hooks/useRegisterForm.js";
 import FormField from "../components/FormField.jsx";
 import FormAlert from "../components/FormAlert.jsx";
 import BusinessFields from "../components/BusinessFields.jsx";
-import ResendVerification from "../components/ResendVerification.jsx";
 import { PATHS, ROLES } from "../lib/constants.js";
 
 const ROLE_OPTIONS = [
@@ -24,11 +23,8 @@ function RegisterPage() {
                     <div className="col-12 col-md-8 col-lg-6 text-center fade-in-up">
                         <h1 className="h2">¡Listo, {registration.user.name}!</h1>
                         <p className="lead">{registration.message}.</p>
-                        <p>Abrí el enlace que enviamos a <strong>{registration.user.email}</strong>: sin verificar el correo no se puede iniciar sesión.</p>
-                        <div className="d-flex flex-column align-items-center gap-3">
-                            <ResendVerification email={registration.user.email} />
-                            <Link className="btn btn-primary" to={PATHS.login}>Ir a iniciar sesión</Link>
-                        </div>
+                        <p>Ya podés iniciar sesión con <strong>{registration.user.email}</strong> y tu contraseña.</p>
+                        <Link className="btn btn-primary" to={PATHS.login}>Ir a iniciar sesión</Link>
                     </div>
                 </div>
             </div>
@@ -64,7 +60,7 @@ function RegisterPage() {
                         <fieldset className="mb-2">
                             <legend className="h5 fw-bold">Tus datos</legend>
                             <FormField id="register-name" name="name" label="Nombre y apellido" autoComplete="name" required value={values.name} onChange={handleChange} error={errors.name} />
-                            <FormField id="register-email" name="email" type="email" label="Correo electrónico" autoComplete="email" required value={values.email} onChange={handleChange} error={errors.email} help="Te vamos a enviar un enlace para verificarlo." />
+                            <FormField id="register-email" name="email" type="email" label="Correo electrónico" autoComplete="email" required value={values.email} onChange={handleChange} error={errors.email} />
                             <div className="row">
                                 <div className="col-12 col-md-6">
                                     <FormField id="register-password" name="password" type="password" label="Contraseña" autoComplete="new-password" required value={values.password} onChange={handleChange} error={errors.password} help="Mínimo 8 caracteres, con una mayúscula, una minúscula y un número." />
