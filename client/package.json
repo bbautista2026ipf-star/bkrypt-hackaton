@@ -16,11 +16,12 @@
     "@fullcalendar/list": "^6.1.21",
     "@fullcalendar/react": "^6.1.21",
     "@popperjs/core": "^2.11.8",
-    "@react-google-maps/api": "^2.20.8",
     "bootstrap": "^5.3.8",
+    "leaflet": "^1.9.4",
     "prop-types": "^15.8.1",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
+    "react-leaflet": "^5.0.0",
     "react-router": "^8.4.0"
   },
   "devDependencies": {
