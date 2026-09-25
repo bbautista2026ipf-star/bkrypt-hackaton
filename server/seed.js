@@ -79,13 +79,15 @@ const seedDemoData = async (admin) => {
         store_longitude: -58.1735
     })
 
+    // Enviada el día anterior: siempre es la solicitud pendiente más antigua (las fechas se guardan con precisión de segundos)
     await EntrepreneurRequest.create({
         user_id: applicant.id,
         brand_name: "Aromas del Litoral",
         biography: "Jabones y velas aromáticas con esencias naturales.",
         whatsapp_number: "+5493704111222",
         has_store: false,
-        event_location_ids: [plaza.id]
+        event_location_ids: [plaza.id],
+        createdAt: daysAgoAt(1, 10)
     })
 
     await Product.bulkCreate([
