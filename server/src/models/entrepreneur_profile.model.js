@@ -1,8 +1,17 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/database.js";
 
-// Datos del emprendimiento compartidos con EntrepreneurRequest: la solicitud guarda exactamente lo que después será el perfil
-export const businessAttributes = {
+export const EntrepreneurProfile = sequelize.define("EntrepreneurProfile", {
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true
+    },
+    user_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        unique: true // refuerza la relación 1:1 con User
+    },
     brand_name: {
         type: DataTypes.STRING,
         allowNull: false
@@ -11,15 +20,6 @@ export const businessAttributes = {
         type: DataTypes.TEXT
     },
     whatsapp_number: {
-        type: DataTypes.STRING
-    },
-    contact_email: {
-        type: DataTypes.STRING
-    },
-    instagram_url: {
-        type: DataTypes.STRING
-    },
-    facebook_url: {
         type: DataTypes.STRING
     },
     // Si no tiene local, el emprendedor indica las ferias a las que asiste (tabla entrepreneur_event_locations)
@@ -37,20 +37,6 @@ export const businessAttributes = {
     store_longitude: {
         type: DataTypes.DECIMAL(11, 8)
     }
-};
-
-export const EntrepreneurProfile = sequelize.define("EntrepreneurProfile", {
-    id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        primaryKey: true
-    },
-    user_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        unique: true // refuerza la relación 1:1 con User
-    },
-    ...businessAttributes
 }, {
     tableName: "entrepreneur_profiles",
     timestamps: true,

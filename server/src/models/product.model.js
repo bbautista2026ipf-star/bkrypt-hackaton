@@ -30,18 +30,9 @@ export const Product = sequelize.define("Product", {
     image_url: {
         type: DataTypes.STRING
     },
-    stock: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue: 0,
-        validate: { min: 0 }
-    },
-    // Se deriva del stock en lugar de guardarse: así nunca puede figurar disponible un producto con stock 0
     is_available: {
-        type: DataTypes.VIRTUAL,
-        get() {
-            return this.getDataValue("stock") > 0;
-        }
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
     }
 }, {
     tableName: "products",

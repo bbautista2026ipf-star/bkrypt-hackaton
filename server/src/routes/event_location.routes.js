@@ -6,7 +6,8 @@ import {
     updateEventLocationValidations
 } from "../middlewares/validations/event_location.validations.js";
 import { checkValidationsResult } from "../middlewares/validationResult.middleware.js";
-import { requireAdmin } from "../middlewares/access.middleware.js";
+import { authentication } from "../middlewares/auth.middleware.js";
+import { authorizeRoles } from "../middlewares/authorization.middleware.js";
 
 export const eventLocationRouter = Router();
 
@@ -14,6 +15,6 @@ export const eventLocationRouter = Router();
 eventLocationRouter.get("/event-locations", getEventLocations);
 
 // Rutas privadas solo para administradores
-eventLocationRouter.post("/event-locations", requireAdmin, createEventLocationValidations, checkValidationsResult, createEventLocation);
-eventLocationRouter.put("/event-locations/:id", requireAdmin, updateEventLocationValidations, checkValidationsResult, updateEventLocation);
-eventLocationRouter.delete("/event-locations/:id", requireAdmin, eventLocationIdValidation, checkValidationsResult, deleteEventLocation);
+eventLocationRouter.post("/event-locations", authentication, authorizeRoles("admin"), createEventLocationValidations, checkValidationsResult, createEventLocation);
+eventLocationRouter.put("/event-locations/:id", authentication, authorizeRoles("admin"), updateEventLocationValidations, checkValidationsResult, updateEventLocation);
+eventLocationRouter.delete("/event-locations/:id", authentication, authorizeRoles("admin"), eventLocationIdValidation, checkValidationsResult, deleteEventLocation);

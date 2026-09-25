@@ -1,25 +1,17 @@
 import jwt from "jsonwebtoken";
 
-// "purpose" distingue un token de sesión de uno de verificación de correo: ninguno sirve para lo que hace el otro
-export const TOKEN_PURPOSES = {
-    session: "session",
-    emailVerification: "email-verification"
-};
-
-export const generateToken = (payload, expiresIn = "1h") => {
+export const generateToken = (payload) => {
     try {
-        return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
+        return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
     } catch (error) {
         throw new Error("Error generando el token: " + error.message);
     }
 };
 
-// Devuelve null si el token es inválido, está vencido o fue emitido para otro propósito
-export const verifyToken = (token, expectedPurpose) => {
+export const verifyToken = (token) => {
     try {
-        const payload = jwt.verify(token, process.env.JWT_SECRET);
-        return payload.purpose === expectedPurpose ? payload : null;
-    } catch {
-        return null;
+        return jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+        throw new Error("Error verificando el token: " + error.message);
     }
 };

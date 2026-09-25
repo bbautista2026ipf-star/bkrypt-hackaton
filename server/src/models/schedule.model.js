@@ -1,33 +1,25 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/database.js";
 
-// Fecha concreta de una feria, habilitada por el administrador en una de las ubicaciones cargadas (event_locations)
-export const Event = sequelize.define("Event", {
+export const Schedule = sequelize.define("Schedule", {
     id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
+    entrepreneur_profile_id: {
+        type: DataTypes.UUID,
+        allowNull: false
+    },
     event_location_id: {
         type: DataTypes.UUID,
         allowNull: false
     },
-    created_by: {
-        type: DataTypes.UUID,
-        allowNull: false
-    },
-    title: {
-        type: DataTypes.STRING(100),
-        allowNull: false
-    },
-    description: {
-        type: DataTypes.TEXT
-    },
-    starts_at: {
+    start_time: {
         type: DataTypes.DATE,
         allowNull: false
     },
-    ends_at: {
+    end_time: {
         type: DataTypes.DATE,
         allowNull: false
     },
@@ -36,11 +28,11 @@ export const Event = sequelize.define("Event", {
         type: DataTypes.VIRTUAL,
         get() {
             const now = new Date();
-            return now >= this.getDataValue("starts_at") && now <= this.getDataValue("ends_at");
+            return now >= this.getDataValue("start_time") && now <= this.getDataValue("end_time");
         }
     }
 }, {
-    tableName: "events",
+    tableName: "schedules",
     timestamps: true,
     underscored: true
 });

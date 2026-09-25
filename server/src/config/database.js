@@ -2,12 +2,9 @@
 import { Sequelize } from "sequelize";
 
 //guardamos en memoria una nueva instancia de sequelize pasandole por parametros la configuración de nuestra base de datos (nombre, host, etc)
-//DB_PORT es opcional: si no se define, Sequelize usa el puerto por defecto de MySQL (3306)
 export const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASS, {
     host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    dialect: process.env.DB_DIALECT,
-    logging: false
+    dialect: process.env.DB_DIALECT 
 })
 
 //creamos función asíncrona que tendrá la responsabilidad de activar la conexión entre nuestra bd, sequelize y el servidor
