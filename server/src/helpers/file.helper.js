@@ -12,11 +12,14 @@ fs.mkdirSync(PRODUCT_IMAGES_DIR, { recursive: true });
 export const toPublicUploadPath = (absolutePath) =>
     "/uploads/" + path.relative(UPLOADS_ROOT, absolutePath).split(path.sep).join("/");
 
+const PUBLIC_UPLOADS_PREFIX = "/uploads/";
+
+// La ruta pública se revisa primero: en Windows path.isAbsolute("/uploads/...") también da true
 const toAbsoluteUploadPath = (fileReference) => {
-    if (path.isAbsolute(fileReference)) {
-        return fileReference;
+    if (fileReference.startsWith(PUBLIC_UPLOADS_PREFIX)) {
+        return path.resolve(UPLOADS_ROOT, fileReference.slice(PUBLIC_UPLOADS_PREFIX.length));
     }
-    return path.join(UPLOADS_ROOT, fileReference.replace(/^\/?uploads\//, ""));
+    return path.resolve(fileReference);
 };
 
 // Acepta la ruta absoluta de multer o la ruta pública guardada en la base
