@@ -18,7 +18,7 @@ function AdminPage() {
 
     return (
         <>
-            <PageBanner tag="Administración" title="Panel de administración" lead="Habilitá las ferias donde los emprendedores cargan sus horarios y retirá los productos que no correspondan." />
+            <PageBanner tag="Administración" title="Panel de administración" lead="Creá y editá las ferias con sus jornadas, y moderá los productos y sus imágenes." />
             <div className="container">
                 <ul className="nav nav-pills flex-column flex-md-row gap-2 mb-4" role="tablist">
                     {TABS.map((tab) => (

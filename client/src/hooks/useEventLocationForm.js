@@ -1,34 +1,43 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import useForm from "./useForm.js";
-import { collectErrors, validateLength, validateNumberInRange } from "../lib/validators.js";
+import {
+    EMPTY_LOCATION,
+    createSessionRow,
+    locationToFormValues,
+    mapLocationFieldErrors,
+    toLocationPayload,
+    validateLocation
+} from "../lib/eventLocationForm.js";
 
-const INITIAL_VALUES = { name: "", description: "", latitude: "", longitude: "" };
+const formOptions = { mapFieldErrors: mapLocationFieldErrors };
 
-const validateLocation = (values) => collectErrors({
-    name: validateLength(values.name, { label: "El nombre de la feria", min: 2, max: 100 }),
-    description: validateLength(values.description, { label: "La descripción", max: 1000, required: false }),
-    latitude: validateNumberInRange(values.latitude, { label: "La latitud", min: -90, max: 90 }),
-    longitude: validateNumberInRange(values.longitude, { label: "La longitud", min: -180, max: 180 })
-});
+// Alta y edición de una feria con sus jornadas. Sin "location" es un alta: al guardar se vacía para cargar otra.
+function useEventLocationForm(location, onSave) {
+    const initialValues = useMemo(() => (location ? locationToFormValues(location) : EMPTY_LOCATION), [location]);
+    const form = useForm(initialValues, validateLocation, formOptions);
+    const { submit, reset, values, setFieldValue } = form;
 
-function useEventLocationForm(addLocation) {
-    const form = useForm(INITIAL_VALUES, validateLocation);
-    const { submit, reset } = form;
+    const addSession = useCallback(() => {
+        setFieldValue("sessions", [...values.sessions, createSessionRow()]);
+    }, [values.sessions, setFieldValue]);
+
+    const changeSession = useCallback((sessionKey, field, value) => {
+        setFieldValue("sessions", values.sessions.map((session) => (session.key === sessionKey ? { ...session, [field]: value } : session)));
+    }, [values.sessions, setFieldValue]);
+
+    const removeSession = useCallback((sessionKey) => {
+        setFieldValue("sessions", values.sessions.filter((session) => session.key !== sessionKey));
+    }, [values.sessions, setFieldValue]);
 
     const handleSubmit = useCallback(async (event) => {
         event.preventDefault();
-        const isSaved = await submit((values) => addLocation({
-            name: values.name.trim(),
-            description: values.description.trim(),
-            latitude: Number(values.latitude),
-            longitude: Number(values.longitude)
-        }));
-        if (isSaved) {
+        const isSaved = await submit((formValues) => onSave(toLocationPayload(formValues)));
+        if (isSaved && !location) {
             reset();
         }
-    }, [submit, reset, addLocation]);
+    }, [submit, reset, onSave, location]);
 
-    return { ...form, handleSubmit };
+    return { ...form, addSession, changeSession, removeSession, handleSubmit };
 }
 
 export default useEventLocationForm;
