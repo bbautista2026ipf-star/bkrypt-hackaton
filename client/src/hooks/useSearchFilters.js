@@ -8,7 +8,8 @@ const PARAM_NAMES = {
     search: "buscar",
     onlyAvailable: "disponibles",
     nearby: "cerca",
-    radius: "radio"
+    radius: "radio",
+    page: "pagina"
 };
 
 const serializeFilter = (value) => {
@@ -16,6 +17,11 @@ const serializeFilter = (value) => {
         return "1";
     }
     return value === false || value === null || value === undefined ? "" : String(value);
+};
+
+const toPageNumber = (value) => {
+    const page = Number(value);
+    return Number.isInteger(page) && page > 1 ? page : 1;
 };
 
 // Estado único de filtros del buscador: vive en la URL, así el catálogo y el mapa leen lo mismo y quedan sincronizados
@@ -31,15 +37,18 @@ function useSearchFilters() {
             search: searchParams.get(PARAM_NAMES.search) ?? "",
             onlyAvailable: searchParams.get(PARAM_NAMES.onlyAvailable) === "1",
             nearby: searchParams.get(PARAM_NAMES.nearby) === "1",
-            radius: SEARCH_RADIUS_OPTIONS.includes(radius) ? radius : DEFAULT_SEARCH_RADIUS
+            radius: SEARCH_RADIUS_OPTIONS.includes(radius) ? radius : DEFAULT_SEARCH_RADIUS,
+            page: toPageNumber(searchParams.get(PARAM_NAMES.page))
         };
     }, [searchParams]);
 
+    // Cambiar cualquier filtro vuelve a la primera página; cambiar solo la página conserva el resto
     const updateFilters = useCallback((changes) => {
         setSearchParams((currentParams) => {
             const nextParams = new URLSearchParams(currentParams);
-            Object.entries(changes).forEach(([name, value]) => {
-                const serialized = serializeFilter(value);
+            const nextChanges = "page" in changes ? changes : { ...changes, page: null };
+            Object.entries(nextChanges).forEach(([name, value]) => {
+                const serialized = name === "page" && value === 1 ? "" : serializeFilter(value);
                 if (serialized === "") {
                     nextParams.delete(PARAM_NAMES[name]);
                 } else {

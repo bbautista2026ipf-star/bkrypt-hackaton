@@ -1,43 +1,25 @@
-import { useCallback, useMemo } from "react";
-import useSearchFilters from "./useSearchFilters.js";
-import useGeolocation from "./useGeolocation.js";
-import useDebouncedValue from "./useDebouncedValue.js";
+import { useCallback } from "react";
+import useSearchQuery from "./useSearchQuery.js";
 import useAsyncData from "./useAsyncData.js";
-import { searchProducts } from "../services/product.service.js";
+import { getProducts } from "../services/product.service.js";
+import { CATALOG_PAGE_SIZE } from "../lib/constants.js";
 
-const SEARCH_DEBOUNCE_MS = 350;
-
-// Resultados del buscador avanzado (productos + eventos del mapa) para los filtros actuales de la URL
+// Página actual del catálogo para los filtros de la URL
 function useProductSearch() {
-    const { filters, updateFilters, clearFilters, hasActiveFilters } = useSearchFilters();
-    const location = useGeolocation(filters.nearby);
-    const debouncedSearch = useDebouncedValue(filters.search, SEARCH_DEBOUNCE_MS);
+    const search = useSearchQuery();
+    const { productFilters, filters } = search;
 
-    const coords = filters.nearby ? location.coords : null;
-    const isWaitingForLocation = filters.nearby && location.status === "locating";
-
-    const query = useMemo(() => ({
-        category: filters.category,
-        search: debouncedSearch.trim(),
-        available: filters.onlyAvailable ? "true" : "",
-        lat: coords?.lat,
-        lng: coords?.lng,
-        radius: coords ? filters.radius : undefined
-    }), [filters.category, filters.onlyAvailable, filters.radius, debouncedSearch, coords]);
-
-    const loadResults = useCallback(() => searchProducts(query), [query]);
-    const results = useAsyncData(loadResults, { enabled: !isWaitingForLocation });
+    const loadResults = useCallback(
+        () => getProducts({ ...productFilters, page: filters.page, limit: CATALOG_PAGE_SIZE }),
+        [productFilters, filters.page]
+    );
+    const results = useAsyncData(loadResults, { enabled: !search.isWaitingForLocation });
 
     return {
-        filters,
-        updateFilters,
-        clearFilters,
-        hasActiveFilters,
-        location,
-        isSortedByDistance: Boolean(coords),
+        ...search,
         products: results.data?.products ?? [],
-        events: results.data?.events ?? [],
-        status: isWaitingForLocation ? "loading" : results.status,
+        pagination: results.data?.pagination ?? null,
+        status: search.isWaitingForLocation ? "loading" : results.status,
         hasResults: results.data !== null,
         error: results.error,
         reload: results.reload

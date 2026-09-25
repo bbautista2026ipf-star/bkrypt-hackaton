@@ -1,34 +1,42 @@
 import PropTypes from "prop-types";
-import { buildMailLink, buildProductInquiry, buildWhatsAppLink } from "../lib/contact.js";
+import { Link } from "react-router";
+import { PATHS } from "../lib/constants.js";
+import { buildProductInquiry, buildWhatsAppLink } from "../lib/contact.js";
 
-// Contacto directo desde la tarjeta: un producto sin stock no ofrece WhatsApp ni correo
+// Contacto desde la tarjeta: un producto sin stock no ofrece WhatsApp. Si el listado no trae el número
+// (el catálogo general no lo incluye), se lleva al detalle del producto, donde sí está.
 function ProductContact({ product, entrepreneur }) {
     if (!product.is_available) {
         return <p className="text-body-secondary mb-0">Sin stock por ahora: no se puede consultar desde esta tarjeta.</p>;
     }
-    const inquiry = buildProductInquiry(product.name, entrepreneur.brand_name);
     if (entrepreneur.whatsapp_number) {
         return (
-            <a className="btn btn-primary w-100" href={buildWhatsAppLink(entrepreneur.whatsapp_number, inquiry)} target="_blank" rel="noopener noreferrer">
+            <a
+                className="btn btn-primary w-100"
+                href={buildWhatsAppLink(entrepreneur.whatsapp_number, buildProductInquiry(product.name, entrepreneur.brand_name))}
+                target="_blank"
+                rel="noopener noreferrer"
+            >
                 Consultar por WhatsApp<span className="visually-hidden"> (se abre en otra pestaña)</span>
             </a>
         );
     }
-    if (entrepreneur.contact_email) {
-        return <a className="btn btn-outline-primary w-100" href={buildMailLink(entrepreneur.contact_email, inquiry)}>Consultar por correo</a>;
-    }
-    return null;
+    return (
+        <Link className="btn btn-outline-primary w-100" to={PATHS.product(product.id)}>
+            Ver producto y contacto<span className="visually-hidden"> de {product.name}</span>
+        </Link>
+    );
 }
 
 ProductContact.propTypes = {
     product: PropTypes.shape({
+        id: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired,
         is_available: PropTypes.bool.isRequired
     }).isRequired,
     entrepreneur: PropTypes.shape({
         brand_name: PropTypes.string.isRequired,
-        whatsapp_number: PropTypes.string,
-        contact_email: PropTypes.string
+        whatsapp_number: PropTypes.string
     }).isRequired
 };
 
