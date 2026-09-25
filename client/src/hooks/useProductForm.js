@@ -4,7 +4,7 @@ import { EMPTY_PRODUCT, productToFormValues, validateProduct } from "../lib/prod
 import { toAssetUrl } from "../lib/apiConfig.js";
 
 // Vista previa de la imagen elegida; la URL temporal se libera al cambiarla o al salir
-const useImagePreview = (file) => {
+export const useImagePreview = (file) => {
     const previewUrl = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
 
     useEffect(() => () => {

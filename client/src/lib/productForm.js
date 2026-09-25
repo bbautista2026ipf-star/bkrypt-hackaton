@@ -21,7 +21,7 @@ export const productToFormValues = (product) => ({
     remove_image: false
 });
 
-const validateImage = (file) => {
+export const validateImage = (file) => {
     if (!file) {
         return null;
     }

@@ -19,4 +19,7 @@ export const createProduct = (productData) => apiRequest("/products", { method: 
 
 export const updateProduct = (productId, productData) => apiRequest(`/products/${productId}`, { method: "PUT", body: productData });
 
+// Solo administrador: imageData es un FormData con el archivo en "image" o remove_image = "true"
+export const updateProductImage = (productId, imageData) => apiRequest(`/products/${productId}/image`, { method: "PUT", body: imageData });
+
 export const deleteProduct = (productId) => apiRequest(`/products/${productId}`, { method: "DELETE" });
